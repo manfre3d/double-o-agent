@@ -15,6 +15,8 @@ export class MissionService {
   readonly events = signal<MissionEvent[]>([]);
   readonly running = signal(false);
   readonly linkError = signal<string | undefined>(undefined);
+  /** Bumped when a mission ends — history views reload on it. */
+  readonly finishedCount = signal(0);
 
   start(): void {
     if (this.running()) {
@@ -46,6 +48,7 @@ export class MissionService {
         if (event.type === 'debrief' || event.type === 'error') {
           this.running.set(false);
           this.close();
+          this.finishedCount.update((n) => n + 1);
         }
       });
     }

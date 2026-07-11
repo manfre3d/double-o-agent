@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   MessageEvent,
   Param,
   Post,
@@ -8,6 +9,8 @@ import {
 } from '@nestjs/common';
 import { Observable, map } from 'rxjs';
 import type {
+  MissionEvent,
+  MissionSummaryDto,
   StartMissionRequestDto,
   StartMissionResponseDto,
 } from '@double-o/shared';
@@ -18,8 +21,20 @@ export class MissionsController {
   constructor(private readonly missions: MissionsService) {}
 
   @Post()
-  start(@Body() body: StartMissionRequestDto): StartMissionResponseDto {
+  start(
+    @Body() body: StartMissionRequestDto,
+  ): Promise<StartMissionResponseDto> {
     return this.missions.start(body.type);
+  }
+
+  @Get()
+  list(): Promise<MissionSummaryDto[]> {
+    return this.missions.history();
+  }
+
+  @Get(':id/events')
+  events(@Param('id') id: string): Promise<MissionEvent[]> {
+    return this.missions.storedEvents(id);
   }
 
   @Sse(':id/feed')

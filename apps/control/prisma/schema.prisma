@@ -1,0 +1,36 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Mission {
+  id         String    @id
+  code       String    @unique
+  type       String
+  status     String    @default("running")
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+  /// Stored debrief prose (Italian, user-facing).
+  debrief    String?
+  /// FlaggedInvoiceDto[] as JSON.
+  flagged    Json      @default("[]")
+  events     MissionEvent[]
+}
+
+model MissionEvent {
+  id        Int      @id @default(autoincrement())
+  missionId String
+  mission   Mission  @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  seq       Int
+  type      String
+  /// The full wire-shape MissionEvent, replayed as-is for history.
+  payload   Json
+  at        DateTime
+
+  @@unique([missionId, seq])
+}

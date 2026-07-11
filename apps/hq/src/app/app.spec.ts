@@ -27,7 +27,9 @@ describe('App', () => {
       message: 'Control operativo. In attesa della prossima missione.',
       reportedAt: new Date().toISOString(),
     };
-    TestBed.inject(HttpTestingController).expectOne('/api/status').flush(report);
+    const http = TestBed.inject(HttpTestingController);
+    http.expectOne('/api/status').flush(report);
+    http.expectOne('/api/missions').flush([]);
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;

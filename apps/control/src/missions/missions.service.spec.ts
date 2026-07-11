@@ -1,13 +1,14 @@
 import { NotFoundException } from '@nestjs/common';
 import { firstValueFrom, toArray } from 'rxjs';
 import { MissionsService } from './missions.service';
+import { MissionsRepository } from './missions.repository';
 import {
   AgentLoopService,
   EmitFn,
   MissionRunSpec,
 } from '../agent/agent-loop.service';
 
-function buildService() {
+function build() {
   const fakeLoop = {
     run: (spec: MissionRunSpec, emit: EmitFn) => {
       emit({
@@ -20,13 +21,30 @@ function buildService() {
       return Promise.resolve();
     },
   } as AgentLoopService;
-  return new MissionsService(fakeLoop);
+
+  const repo = {
+    create: jest.fn().mockResolvedValue(undefined),
+    nextCodeNumber: jest.fn().mockResolvedValue(1),
+    appendEvent: jest.fn().mockResolvedValue(undefined),
+    finish: jest.fn().mockResolvedValue(undefined),
+    list: jest.fn().mockResolvedValue([]),
+    exists: jest.fn().mockResolvedValue(false),
+    getEvents: jest.fn().mockResolvedValue([]),
+  };
+
+  return {
+    service: new MissionsService(
+      fakeLoop,
+      repo as unknown as MissionsRepository,
+    ),
+    repo,
+  };
 }
 
 describe('MissionsService', () => {
   it('starts a mission and replays its full event stream', async () => {
-    const service = buildService();
-    const { missionId, code } = service.start('duplicate-hunt');
+    const { service } = build();
+    const { missionId, code } = await service.start('duplicate-hunt');
     expect(code).toBe('007-001');
 
     const events = await firstValueFrom(
@@ -37,8 +55,44 @@ describe('MissionsService', () => {
     expect(events.every((e) => e.missionId === missionId)).toBe(true);
   });
 
-  it('throws NotFound for an unknown mission stream', () => {
-    const service = buildService();
+  it('persists the mission, every event, and the final outcome', async () => {
+    const { service, repo } = build();
+    const { missionId, code } = await service.start('duplicate-hunt');
+
+    expect(repo.create).toHaveBeenCalledWith({
+      id: missionId,
+      code,
+      type: 'duplicate-hunt',
+    });
+
+    await firstValueFrom(service.eventStream(missionId).pipe(toArray()));
+    expect(repo.appendEvent).toHaveBeenCalledTimes(2);
+    expect(repo.finish).toHaveBeenCalledWith(missionId, {
+      status: 'completed',
+      debrief: 'Fine.',
+      flagged: [],
+    });
+  });
+
+  it('enriches history summaries with the mission title', async () => {
+    const { service, repo } = build();
+    repo.list.mockResolvedValue([
+      {
+        missionId: 'm1',
+        code: '007-001',
+        type: 'duplicate-hunt',
+        status: 'completed',
+      },
+    ]);
+    const history = await service.history();
+    expect(history[0].title).toBe('Caccia ai doppioni');
+  });
+
+  it('throws NotFound for unknown live streams and stored events', async () => {
+    const { service } = build();
     expect(() => service.eventStream('nope')).toThrow(NotFoundException);
+    await expect(service.storedEvents('nope')).rejects.toThrow(
+      NotFoundException,
+    );
   });
 });

@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-> **Status: Phase 2 (agent loop MVP) complete — one mission type, 3 gadgets, SSE feed end-to-end. Next is Phase 3, persistence; see ROADMAP.md.** Update this line as phases complete.
+> **Status: Phase 3 (persistence) complete — missions/events stored via Prisma 7 + Postgres, history + stored debriefs in HQ. Next is Phase 4, spy-noir polish; see ROADMAP.md.** Update this line as phases complete.
 
 Double-O Agent is a 007-parody web app whose "secret agent" is an AI agent running SMB-finance missions (invoice extraction, duplicate hunting, reconciliation), streamed live to a spy-noir dashboard. The full what-and-why, stack rationale, and build phases live in [ROADMAP.md](./ROADMAP.md) — read it before proposing structural changes.
 
@@ -21,8 +21,9 @@ Double-O Agent is a 007-parody web app whose "secret agent" is an AI agent runni
 ## Commands
 
 ```bash
-npm install            # root install, wires all workspaces
+npm install            # root install, wires all workspaces (+ prisma generate)
 npm run db             # docker compose up -d (Postgres)
+npm run db:migrate     # prisma migrate dev (schema in apps/control/prisma)
 npm run control        # start NestJS backend (apps/control)
 npm run hq             # start Angular frontend (apps/hq)
 npm run test           # all workspace tests

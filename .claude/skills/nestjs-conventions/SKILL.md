@@ -12,10 +12,11 @@ description: NestJS conventions for apps/control — module layout, DTOs from li
 ```
 apps/control/src/
 ├── app.module.ts       # root: imports the domain modules + ConfigModule
-├── missions/           # start/list missions, SSE feed controller
+├── missions/           # start/list missions, SSE feed controller, MissionsRepository
 ├── agent/              # the agent loop + LlmService
 ├── gadgets/            # gadget classes + registry (see add-gadget skill)
-└── debrief/            # debrief generation & retrieval
+├── prisma/             # PrismaService (client + pg driver adapter); schema in ../prisma
+└── generated/          # Prisma client output — gitignored, rebuilt by postinstall
 ```
 
 *Why:* a Nest module is the same idea as an Angular feature area — a folder that owns its controllers (≈ components: they face the outside) and providers (≈ services: they do the work). One domain per module keeps dependency direction visible: `missions` → `agent` → `gadgets`, never backwards.

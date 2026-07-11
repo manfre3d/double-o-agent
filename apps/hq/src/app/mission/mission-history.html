@@ -1,0 +1,38 @@
+<!-- Phase 3: plain dossier archive; the spy-noir rendering pass is Phase 4. -->
+<h2>Archivio missioni</h2>
+
+@if (missions.error()) {
+  <p>Archivio non disponibile.</p>
+} @else if (missions.value(); as list) {
+  @if (!list.length) {
+    <p>Nessuna missione in archivio.</p>
+  }
+  <ul class="dossier-list">
+    @for (m of list; track m.missionId) {
+      <li>
+        <button type="button" (click)="toggle(m.missionId)">
+          MISSIONE N. {{ m.code }} — {{ m.title }} · {{ statusLabel(m.status) }} ·
+          {{ m.startedAt | date: 'short' }}
+        </button>
+        @if (openId() === m.missionId) {
+          @if (m.debrief) {
+            <p><strong>Rapporto di missione</strong></p>
+            <p>{{ m.debrief }}</p>
+            @if (m.flagged.length) {
+              <ul>
+                @for (flag of m.flagged; track flag.invoiceId) {
+                  <li>{{ flag.invoiceId }} — {{ flag.reason }}</li>
+                }
+              </ul>
+            }
+          }
+          @if (openEvents.value(); as events) {
+            <app-mission-feed [events]="events" />
+          } @else if (openEvents.isLoading()) {
+            <p>Recupero del dossier&hellip;</p>
+          }
+        }
+      </li>
+    }
+  </ul>
+}

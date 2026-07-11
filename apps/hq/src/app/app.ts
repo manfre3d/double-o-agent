@@ -3,10 +3,11 @@ import { httpResource } from '@angular/common/http';
 import type { StatusReportDto } from '@double-o/shared';
 import { MissionService } from './mission/mission.service';
 import { MissionFeed } from './mission/mission-feed';
+import { MissionHistory } from './mission/mission-history';
 
 @Component({
   selector: 'app-root',
-  imports: [MissionFeed],
+  imports: [MissionFeed, MissionHistory],
   templateUrl: './app.html',
   styleUrl: './app.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

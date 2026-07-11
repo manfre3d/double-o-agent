@@ -7,10 +7,15 @@
     "libs/*"
   ],
   "scripts": {
+    "postinstall": "prisma generate",
     "db": "docker compose up -d",
+    "db:migrate": "prisma migrate dev",
     "control": "npm run build -w @double-o/shared && npm run start:dev -w control",
     "hq": "npm run build -w @double-o/shared && npm run start -w hq",
     "test": "npm run build -w @double-o/shared && npm test --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present"
+  },
+  "devDependencies": {
+    "dotenv": "^17.4.2"
   }
 }

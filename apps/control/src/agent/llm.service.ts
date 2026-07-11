@@ -9,15 +9,28 @@ import type { ToolDefinition } from '../gadgets/gadget.registry';
 import type { AssistantTurn, ChatMessage } from './agent.types';
 
 /**
- * The only file in the codebase that imports the OpenAI SDK.
+ * Injection token + contract for the agent's brain. The agent loop only
+ * knows this interface; AgentModule decides which implementation to bind
+ * (OpenAI, or the scripted demo brain when no API key is configured).
+ */
+export abstract class LlmService {
+  abstract chat(
+    messages: ChatMessage[],
+    tools: ToolDefinition[],
+  ): Promise<AssistantTurn>;
+}
+
+/**
+ * The only class in the codebase that imports the OpenAI SDK.
  * Swapping providers means rewriting this class and nothing else.
  */
 @Injectable()
-export class LlmService {
+export class OpenAiLlmService extends LlmService {
   private readonly client: OpenAI;
   private readonly model: string;
 
   constructor(config: ConfigService) {
+    super();
     const apiKey = config.get<string>('OPENAI_API_KEY');
     if (!apiKey) {
       throw new Error(

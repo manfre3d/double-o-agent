@@ -6,3 +6,6 @@ coverage/
 .env
 *.log
 .DS_Store
+
+# Prisma generated client (rebuilt on npm install)
+apps/control/src/generated/
