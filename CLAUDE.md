@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-> **Status: Phase 1 (scaffold) complete — next is Phase 2, the agent loop MVP; see ROADMAP.md.** Update this line as phases complete.
+> **Status: Phase 2 (agent loop MVP) complete — one mission type, 3 gadgets, SSE feed end-to-end. Next is Phase 3, persistence; see ROADMAP.md.** Update this line as phases complete.
 
 Double-O Agent is a 007-parody web app whose "secret agent" is an AI agent running SMB-finance missions (invoice extraction, duplicate hunting, reconciliation), streamed live to a spy-noir dashboard. The full what-and-why, stack rationale, and build phases live in [ROADMAP.md](./ROADMAP.md) — read it before proposing structural changes.
 

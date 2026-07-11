@@ -17,4 +17,16 @@
       <p class="status-line">Contacting Control&hellip;</p>
     }
   </section>
+
+  <section class="mission" aria-live="polite">
+    <button type="button" (click)="mission.start()" [disabled]="mission.running()">
+      Avvia missione
+    </button>
+    @if (mission.linkError(); as error) {
+      <p class="status-line status-line--down">{{ error }}</p>
+    }
+    @if (mission.events().length) {
+      <app-mission-feed [events]="mission.events()" />
+    }
+  </section>
 </main>

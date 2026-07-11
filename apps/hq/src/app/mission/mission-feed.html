@@ -1,0 +1,46 @@
+<!-- Phase 2: plain list; the spy-noir rendering pass is Phase 4. -->
+<ol class="feed">
+  @for (event of events(); track event.seq) {
+    <li>
+      @switch (event.type) {
+        @case ('briefing') {
+          <p>
+            <strong>MISSIONE N. {{ event.code }} — {{ event.title }}</strong><br />
+            {{ event.objective }}
+          </p>
+        }
+        @case ('thinking') {
+          <p>{{ event.text }}</p>
+        }
+        @case ('gadget_call') {
+          <p>
+            <code>{{ event.gadget }}</code> {{ event.params | json }}
+          </p>
+        }
+        @case ('gadget_result') {
+          @if (event.ok) {
+            <pre>{{ event.result | json }}</pre>
+          } @else {
+            <p>
+              <code>{{ event.gadget }}</code> failed: {{ event.error }}
+            </p>
+          }
+        }
+        @case ('debrief') {
+          <p><strong>Rapporto di missione</strong></p>
+          <p>{{ event.text }}</p>
+          @if (event.flagged.length) {
+            <ul>
+              @for (flag of event.flagged; track flag.invoiceId) {
+                <li>{{ flag.invoiceId }} — {{ flag.reason }}</li>
+              }
+            </ul>
+          }
+        }
+        @case ('error') {
+          <p>{{ event.message }}</p>
+        }
+      }
+    </li>
+  }
+</ol>
