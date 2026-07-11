@@ -1,3 +1,7 @@
+@if (!introDone()) {
+  <app-gun-barrel (finished)="introDone.set(true)" />
+}
+
 <main class="hq">
   <header class="hq-header">
     <h1 class="hq-title">Double-O Agent</h1>
@@ -5,7 +9,7 @@
   </header>
 
   <section class="status-report" aria-live="polite">
-    <h2 class="status-heading">Control status</h2>
+    <h2 class="section-eyebrow">Control status</h2>
     @if (controlStatus.error()) {
       <p class="status-line status-line--down">No response from Control.</p>
     } @else if (controlStatus.value(); as report) {
@@ -19,8 +23,14 @@
   </section>
 
   <section class="mission" aria-live="polite">
-    <button type="button" (click)="mission.start()" [disabled]="mission.running()">
-      Avvia missione
+    <h2 class="section-eyebrow">Live mission</h2>
+    <button
+      type="button"
+      class="mission-launch"
+      (click)="mission.start()"
+      [disabled]="mission.running()"
+    >
+      {{ mission.running() ? 'Missione in corso…' : 'Avvia missione' }}
     </button>
     @if (mission.linkError(); as error) {
       <p class="status-line status-line--down">{{ error }}</p>

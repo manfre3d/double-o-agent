@@ -1,36 +1,51 @@
-<!-- Phase 3: plain dossier archive; the spy-noir rendering pass is Phase 4. -->
-<h2>Archivio missioni</h2>
+<h2 class="archive-title">Archivio missioni</h2>
 
 @if (missions.error()) {
-  <p>Archivio non disponibile.</p>
+  <p class="archive-note archive-note--down">Archivio non disponibile.</p>
 } @else if (missions.value(); as list) {
   @if (!list.length) {
-    <p>Nessuna missione in archivio.</p>
+    <p class="archive-note">Nessuna missione in archivio.</p>
   }
   <ul class="dossier-list">
     @for (m of list; track m.missionId) {
-      <li>
-        <button type="button" (click)="toggle(m.missionId)">
-          MISSIONE N. {{ m.code }} — {{ m.title }} · {{ statusLabel(m.status) }} ·
-          {{ m.startedAt | date: 'short' }}
+      <li class="dossier">
+        <button
+          type="button"
+          class="dossier-face"
+          [attr.aria-expanded]="openId() === m.missionId"
+          (click)="toggle(m.missionId)"
+        >
+          <span [class]="'dossier-stamp dossier-stamp--' + m.status">
+            {{ stampLabel(m.status) }}
+          </span>
+          <span class="dossier-code">Missione n. {{ m.code }} &mdash; {{ m.title }}</span>
+          <span class="dossier-sub">
+            Stato: {{ statusLabel(m.status) }} &middot;
+            {{ m.startedAt | date: 'dd/MM/yyyy HH:mm' }}
+          </span>
         </button>
         @if (openId() === m.missionId) {
-          @if (m.debrief) {
-            <p><strong>Rapporto di missione</strong></p>
-            <p>{{ m.debrief }}</p>
-            @if (m.flagged.length) {
-              <ul>
-                @for (flag of m.flagged; track flag.invoiceId) {
-                  <li>{{ flag.invoiceId }} — {{ flag.reason }}</li>
-                }
-              </ul>
+          <div class="dossier-body">
+            @if (m.debrief) {
+              <h3 class="dossier-heading">Rapporto di missione</h3>
+              <p class="dossier-debrief"><span class="dossier-redacted">{{ m.debrief }}</span></p>
+              @if (m.flagged.length) {
+                <ul class="dossier-flags">
+                  @for (flag of m.flagged; track flag.invoiceId) {
+                    <li>
+                      <span class="dossier-flag-id">{{ flag.invoiceId }}</span> — {{ flag.reason }}
+                    </li>
+                  }
+                </ul>
+              }
             }
-          }
-          @if (openEvents.value(); as events) {
-            <app-mission-feed [events]="events" />
-          } @else if (openEvents.isLoading()) {
-            <p>Recupero del dossier&hellip;</p>
-          }
+            @if (openEvents.value(); as events) {
+              <h3 class="dossier-heading">Trascrizione</h3>
+              <app-mission-feed [events]="events" [instant]="true" />
+            } @else if (openEvents.isLoading()) {
+              <p class="dossier-note">Recupero del dossier&hellip;</p>
+            }
+          </div>
         }
       </li>
     }

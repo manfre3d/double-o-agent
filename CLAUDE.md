@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-> **Status: Phase 3 (persistence) complete — missions/events stored via Prisma 7 + Postgres, history + stored debriefs in HQ. Next is Phase 4, spy-noir polish; see ROADMAP.md.** Update this line as phases complete.
+> **Status: Phase 4 (spy-noir polish) complete — gun-barrel intro, typewriter feed, dossier cards, TOP SECRET stamps, redaction reveals; self-hosted fonts, tokens + mixins, reduced-motion safe. Next is Phase 5, CI; see ROADMAP.md.** Update this line as phases complete.
 
 Double-O Agent is a 007-parody web app whose "secret agent" is an AI agent running SMB-finance missions (invoice extraction, duplicate hunting, reconciliation), streamed live to a spy-noir dashboard. The full what-and-why, stack rationale, and build phases live in [ROADMAP.md](./ROADMAP.md) — read it before proposing structural changes.
 

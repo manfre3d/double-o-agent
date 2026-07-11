@@ -10,10 +10,42 @@
 body {
   margin: 0;
   min-height: 100dvh;
-  background: var(--noir-black);
+  background: radial-gradient(circle at 50% 25%, var(--noir-lift), var(--noir-black) 70%)
+    fixed var(--noir-black);
   color: var(--dossier-paper);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--gold);
+  color: var(--noir-black);
+}
+
+:focus-visible {
+  outline: 1px solid var(--gold);
+  outline-offset: 2px;
+}
+
+// Global keyframes referenced by the _mixins.scss patterns. Kept out of
+// component stylesheets so view encapsulation never rewrites their names.
+@keyframes unredact {
+  to {
+    background-color: transparent;
+    color: var(--redact-color);
+  }
+}
+
+@keyframes stamp-in {
+  from {
+    opacity: 0;
+    transform: rotate(var(--stamp-angle, -8deg)) scale(1.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: rotate(var(--stamp-angle, -8deg)) scale(1);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -21,7 +53,9 @@ body {
   *::before,
   *::after {
     transition-duration: 0.001ms !important;
+    transition-delay: 0.001ms !important;
     animation-duration: 0.001ms !important;
+    animation-delay: 0.001ms !important;
     animation-iteration-count: 1 !important;
   }
 }

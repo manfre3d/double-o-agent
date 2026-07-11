@@ -1,0 +1,171 @@
+@use '../../styles/mixins';
+
+.archive-title {
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.archive-note {
+  margin: 0;
+  font-family: var(--font-mono);
+  color: var(--phosphor-dim);
+
+  &--down {
+    display: inline-block;
+    padding: 0 var(--space-2);
+    background: var(--blood-red);
+    color: var(--dossier-paper);
+  }
+}
+
+.dossier-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+// One mission = one paper file: tab on top, typewritten face, stapled body.
+.dossier {
+  position: relative;
+  border-radius: var(--radius-card);
+  background-color: var(--dossier-paper);
+  color: var(--ink);
+  box-shadow: var(--shadow-sm);
+
+  @include mixins.paper-grain;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: var(--space-3);
+    width: 7rem;
+    height: 10px;
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
+    background: var(--dossier-paper-dark);
+  }
+}
+
+.dossier-face {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+  padding: var(--space-3) 10rem var(--space-3) var(--space-4);
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: var(--font-mono);
+  text-align: left;
+  cursor: pointer;
+  transition: translate var(--transition-fast);
+
+  &:hover {
+    translate: 0 -1px;
+  }
+
+  @media (max-width: 720px) {
+    padding-right: var(--space-4);
+  }
+}
+
+.dossier-stamp {
+  @include mixins.stamp($color: var(--ink), $angle: -6deg);
+
+  position: absolute;
+  top: 50%;
+  right: var(--space-4);
+  z-index: var(--z-stamp);
+  margin-top: -1em;
+  font-size: 0.75rem;
+
+  &--completed,
+  &--failed {
+    border-color: var(--blood-red);
+    color: var(--blood-red);
+  }
+
+  @media (max-width: 720px) {
+    position: static;
+    margin-top: 0;
+    align-self: flex-start;
+    order: 1;
+  }
+}
+
+.dossier-code {
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.dossier-sub {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.dossier-body {
+  padding: 0 var(--space-4) var(--space-3);
+  border-top: 1px dashed var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+
+  app-mission-feed {
+    display: block;
+    margin-top: var(--space-2);
+  }
+}
+
+.dossier-heading {
+  margin: var(--space-3) 0 var(--space-2);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.dossier-debrief {
+  margin: 0;
+  max-width: 60ch;
+  line-height: 1.6;
+}
+
+.dossier-redacted {
+  @include mixins.redacted($color: var(--ink), $delay: 400ms);
+}
+
+.dossier-flags {
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    padding-left: var(--space-3);
+    border-left: 3px solid var(--blood-red);
+
+    & + li {
+      margin-top: var(--space-1);
+    }
+  }
+}
+
+.dossier-flag-id {
+  font-weight: 600;
+}
+
+.dossier-note {
+  margin: var(--space-3) 0 0;
+  color: var(--ink-faint);
+}

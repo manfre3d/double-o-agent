@@ -17,10 +17,18 @@ const STATUS_LABELS: Record<MissionStatus, string> = {
   failed: 'FALLITA',
 };
 
+/** Stamp inked onto the dossier card face, per mission status. */
+const STAMP_LABELS: Record<MissionStatus, string> = {
+  running: 'In corso',
+  completed: 'Top secret',
+  failed: 'Fallita',
+};
+
 @Component({
   selector: 'app-mission-history',
   imports: [DatePipe, MissionFeed],
   templateUrl: './mission-history.html',
+  styleUrl: './mission-history.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MissionHistory {
@@ -43,6 +51,10 @@ export class MissionHistory {
 
   protected statusLabel(status: MissionStatus): string {
     return STATUS_LABELS[status];
+  }
+
+  protected stampLabel(status: MissionStatus): string {
+    return STAMP_LABELS[status];
   }
 
   protected toggle(missionId: string): void {

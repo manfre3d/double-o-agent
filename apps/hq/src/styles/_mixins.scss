@@ -1,2 +1,61 @@
-// Shared pattern mixins (stamp, scanlines, redaction, typewriter) land with
-// the Phase 4 visual pass — see the spy-theme skill for what each may do.
+// Shared spy-noir pattern mixins — what each may do is governed by the
+// spy-theme skill. Keyframes they reference (unredact, stamp-in) are global
+// and live in styles.scss.
+
+// Rubber stamp: rotated, double-ruled, worn at the edges. Stamps onto the
+// page via the global stamp-in keyframes.
+@mixin stamp($color: var(--blood-red), $angle: -8deg) {
+  --stamp-angle: #{$angle};
+  display: inline-block;
+  padding: 0.1em 0.45em;
+  border: 3px double $color;
+  border-radius: var(--radius-card);
+  color: $color;
+  font-family: var(--font-stamp);
+  letter-spacing: 0.3em;
+  text-indent: 0.3em; // recenters tracking-padded text
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: rotate(var(--stamp-angle));
+  mask-image: radial-gradient(ellipse at 40% 45%, black 45%, rgb(0 0 0 / 60%) 100%);
+  animation: stamp-in 180ms var(--ease-out) both;
+}
+
+// CRT scanlines at whisper opacity — the host must be position: relative.
+@mixin scanlines {
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-panel-overlay);
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0 2px,
+      rgb(0 0 0 / 14%) 2px 3px
+    );
+  }
+}
+
+// Faint speckle for dossier-paper surfaces. Sets background-image only;
+// the host keeps its own background-color.
+@mixin paper-grain {
+  background-image:
+    radial-gradient(rgb(26 26 24 / 5%) 1px, transparent 1px),
+    radial-gradient(rgb(26 26 24 / 3%) 1px, transparent 1px);
+  background-size: 7px 7px, 11px 11px;
+  background-position: 0 0, 3px 5px;
+}
+
+// Redaction bar that declassifies: text starts as a solid ink bar, then the
+// bar drops after $delay (global unredact keyframes). $color is the revealed
+// text color. box-decoration-break gives one bar per wrapped line.
+@mixin redacted($color: var(--ink), $delay: 500ms) {
+  --redact-color: #{$color};
+  padding: 0 0.3em;
+  background-color: var(--ink);
+  color: transparent;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  animation: unredact 1ms linear $delay both;
+}

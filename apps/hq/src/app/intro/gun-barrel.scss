@@ -1,0 +1,81 @@
+// Timeline (total 2.7s, mirrored by INTRO_DURATION_MS in gun-barrel.ts):
+// 0–1.4s  barrel sweeps in from the left, stepped like film frames
+// 1.4–1.9s hold on center
+// 1.9–2.7s the iris opens: circle blows out, screen fades to reveal HQ
+
+.barrel-screen {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-intro);
+  display: grid;
+  place-items: center;
+  background: var(--noir-black);
+  cursor: pointer;
+  animation: screen-open 0.7s var(--ease-out) 2s both;
+}
+
+.barrel-iris {
+  width: min(38vmin, 340px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 2px solid var(--gold-dim);
+  background: repeating-radial-gradient(
+    circle at 50% 50%,
+    var(--dossier-paper) 0 9%,
+    var(--dossier-paper-dark) 9% 13%
+  );
+  box-shadow: var(--shadow-md);
+  animation:
+    barrel-sweep 1.4s steps(9, end) both,
+    barrel-fire 0.8s ease-in 1.9s both;
+}
+
+.barrel-hint {
+  position: absolute;
+  bottom: var(--space-4);
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--phosphor-dim);
+  animation: hint-in 0.4s ease 1s both;
+}
+
+@keyframes barrel-sweep {
+  from {
+    transform: translateX(-75vw);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes barrel-fire {
+  to {
+    transform: scale(12);
+    opacity: 0;
+  }
+}
+
+@keyframes screen-open {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes hint-in {
+  from {
+    opacity: 0;
+  }
+}
+
+// The component skips itself in TS under reduced motion; this guards the
+// one frame it may still paint.
+@media (prefers-reduced-motion: reduce) {
+  .barrel-screen {
+    display: none;
+  }
+}

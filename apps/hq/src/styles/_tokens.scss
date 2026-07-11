@@ -4,21 +4,30 @@
 :root {
   // Colors
   --noir-black: #0d0d0f;
+  --noir-lift: #16161a; // slightly lifted black for panels and the vignette
   --gold: #c9a227;
   --blood-red: #8b1e1e;
   --dossier-paper: #efe6d0;
+  --dossier-paper-dark: #e2d6b6; // folder tabs, paper edges
   --ink: #1a1a18;
   --phosphor: #9fb8a4;
+
+  // Derived shades (hairlines, muted text)
+  --gold-dim: rgb(201 162 39 / 35%);
+  --phosphor-dim: rgb(159 184 164 / 60%);
+  --ink-faint: rgb(26 26 24 / 65%);
 
   // Spacing
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 1rem;
   --space-4: 2rem;
+  --space-5: 3rem;
 
-  // Typography (webfonts land in Phase 4; these resolve to system fallbacks)
+  // Typography (self-hosted, see _fonts.scss)
   --font-mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
   --font-display: 'Oswald', 'Arial Narrow', sans-serif;
+  --font-stamp: 'Special Elite', 'Courier New', monospace;
   --font-body: system-ui, 'Helvetica Neue', sans-serif;
 
   // Radii & shadows
@@ -28,5 +37,11 @@
 
   // Motion
   --transition-fast: 150ms ease;
+  --transition-slow: 400ms var(--ease-out);
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  // Z scale: 0 flow, 1 overlays inside a panel, 10 stamps, 200 intro
+  --z-panel-overlay: 1;
+  --z-stamp: 10;
+  --z-intro: 200;
 }
