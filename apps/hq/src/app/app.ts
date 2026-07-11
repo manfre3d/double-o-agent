@@ -2,13 +2,14 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { httpResource } from '@angular/common/http';
 import type { StatusReportDto } from '@double-o/shared';
 import { MissionService } from './mission/mission.service';
+import { MissionAnalytics } from './mission/mission-analytics';
 import { MissionFeed } from './mission/mission-feed';
 import { MissionHistory } from './mission/mission-history';
 import { GunBarrel } from './intro/gun-barrel';
 
 @Component({
   selector: 'app-root',
-  imports: [MissionFeed, MissionHistory, GunBarrel],
+  imports: [MissionAnalytics, MissionFeed, MissionHistory, GunBarrel],
   templateUrl: './app.html',
   styleUrl: './app.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

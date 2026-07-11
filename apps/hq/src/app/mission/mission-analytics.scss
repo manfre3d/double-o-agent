@@ -1,0 +1,184 @@
+.analytics-title {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.analytics-note {
+  margin: 0;
+  font-family: var(--font-mono);
+  color: var(--phosphor-dim);
+
+  &--down {
+    display: inline-block;
+    padding: 0 var(--space-2);
+    background: var(--blood-red);
+    color: var(--dossier-paper);
+  }
+}
+
+.stat-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: var(--space-3);
+  margin: 0 0 var(--space-4);
+}
+
+.stat-tile {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--gold-dim);
+  border-radius: var(--radius-card);
+  background: var(--noir-lift);
+}
+
+.stat-tile-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--phosphor-dim);
+}
+
+.stat-tile-value {
+  margin: var(--space-1) 0 0;
+  font-family: var(--font-display);
+  font-size: 1.9rem;
+  font-weight: 500;
+
+  &--gold {
+    color: var(--gold);
+  }
+}
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: var(--space-4);
+}
+
+.chart-title {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--phosphor);
+}
+
+.bar-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-mono);
+}
+
+.bar-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-bottom: var(--space-1);
+}
+
+.bar-label {
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  &--code {
+    text-transform: none;
+    letter-spacing: 0;
+  }
+}
+
+.bar-count {
+  font-size: 0.8rem;
+  color: var(--phosphor);
+}
+
+.bar-failures {
+  display: inline-block;
+  margin-left: var(--space-1);
+  padding: 0 var(--space-1);
+  background: var(--blood-red);
+  color: var(--dossier-paper);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+// Segment widths are flex-grow ratios, so gaps never overflow the track.
+.bar-track {
+  display: flex;
+  gap: 2px;
+  height: 10px;
+}
+
+.bar-seg {
+  flex: 1 1 0;
+  min-width: 3px;
+  border-radius: var(--radius-card);
+  background: var(--phosphor);
+
+  // Blood-red sits below 3:1 on noir; the hairline ring keeps the mark
+  // visible (counts are always in the row text as well).
+  &--failed {
+    background: var(--blood-red);
+    box-shadow: inset 0 0 0 1px var(--paper-faint);
+  }
+
+  &--running {
+    background: var(--gold);
+  }
+}
+
+.bar-sub {
+  margin: var(--space-1) 0 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--phosphor-dim);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--phosphor-dim);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.legend-swatch {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: var(--radius-card);
+  background: var(--phosphor);
+
+  &--failed {
+    background: var(--blood-red);
+    box-shadow: inset 0 0 0 1px var(--paper-faint);
+  }
+
+  &--running {
+    background: var(--gold);
+  }
+}

@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-> **Status: Stretch 2 (Q Branch evals) complete — golden-set eval harness in `apps/control/src/qbranch`: `npm run eval` scores the agent through the production briefs (`missions/mission-briefs.ts`), demo-replayable subset without an API key, full set live; CI runs it on every push. Remaining stretch goals: HQ analytics, deploy; see ROADMAP.md.** Update this line as phases complete.
+> **Status: Stretch 3 (HQ analytics) complete — `GET /api/missions/analytics` aggregates mission stats in Postgres (per-type outcomes, durations, gadget usage, flagged invoices) and HQ renders the «Analisi operativa» panel (stat tiles + bar lists) above the archive. Remaining stretch goal: deploy; see ROADMAP.md.** Update this line as phases complete.
 
 Double-O Agent is a 007-parody web app whose "secret agent" is an AI agent running SMB-finance missions (invoice extraction, duplicate hunting, reconciliation), streamed live to a spy-noir dashboard. The full what-and-why, stack rationale, and build phases live in [ROADMAP.md](./ROADMAP.md) — read it before proposing structural changes.
 

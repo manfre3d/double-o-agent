@@ -3,12 +3,27 @@ import type { Prisma } from '../generated/prisma/client';
 import type {
   ExtractedInvoiceDto,
   FlaggedInvoiceDto,
+  GadgetUsageDto,
   MissionEvent,
   MissionStatus,
   MissionSummaryDto,
   MissionType,
 } from '@double-o/shared';
 import { PrismaService } from '../prisma/prisma.service';
+
+/** One GROUP BY (type, status) bucket; avgMs is null when none have finished. */
+export interface MissionTypeStatusRow {
+  type: string;
+  status: string;
+  count: number;
+  avgMs: number | null;
+}
+
+export interface MissionAnalyticsRows {
+  typeStatus: MissionTypeStatusRow[];
+  gadgets: GadgetUsageDto[];
+  flaggedInvoices: number;
+}
 
 @Injectable()
 export class MissionsRepository {
@@ -75,6 +90,29 @@ export class MissionsRepository {
       extracted: (row.extracted ?? undefined) as
         ExtractedInvoiceDto | undefined,
     }));
+  }
+
+  /** Aggregation happens in Postgres (GROUP BY / FILTER / jsonb), not in Node. */
+  async analytics(): Promise<MissionAnalyticsRows> {
+    const [typeStatus, gadgets, flaggedRows] = await Promise.all([
+      this.prisma.$queryRaw<MissionTypeStatusRow[]>`
+        SELECT "type", "status", COUNT(*)::int AS "count",
+               AVG(EXTRACT(EPOCH FROM ("finishedAt" - "startedAt")) * 1000)::float AS "avgMs"
+        FROM "Mission"
+        GROUP BY "type", "status"`,
+      this.prisma.$queryRaw<GadgetUsageDto[]>`
+        SELECT "payload"->>'gadget' AS "gadget",
+               COUNT(*)::int AS "calls",
+               (COUNT(*) FILTER (WHERE "payload"->>'ok' = 'false'))::int AS "failures"
+        FROM "MissionEvent"
+        WHERE "type" = 'gadget_result'
+        GROUP BY 1
+        ORDER BY "calls" DESC, "gadget"`,
+      this.prisma.$queryRaw<{ total: number }[]>`
+        SELECT COALESCE(SUM(jsonb_array_length("flagged")), 0)::int AS "total"
+        FROM "Mission"`,
+    ]);
+    return { typeStatus, gadgets, flaggedInvoices: flaggedRows[0]?.total ?? 0 };
   }
 
   async exists(missionId: string): Promise<boolean> {

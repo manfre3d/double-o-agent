@@ -2,9 +2,11 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { Observable, ReplaySubject } from 'rxjs';
 import type {
+  MissionAnalyticsDto,
   MissionEvent,
   MissionSummaryDto,
   MissionType,
+  MissionTypeStatsDto,
   StartMissionResponseDto,
 } from '@double-o/shared';
 import {
@@ -131,6 +133,73 @@ export class MissionsService {
       ...summary,
       title: MISSION_TITLES[summary.type] ?? summary.type,
     }));
+  }
+
+  async analytics(): Promise<MissionAnalyticsDto> {
+    const { typeStatus, gadgets, flaggedInvoices } =
+      await this.repo.analytics();
+
+    const perType = new Map<
+      MissionType,
+      MissionTypeStatsDto & { durationSumMs: number; finished: number }
+    >();
+    for (const row of typeStatus) {
+      const type = row.type as MissionType;
+      const stats = perType.get(type) ?? {
+        type,
+        title: MISSION_TITLES[type] ?? row.type,
+        total: 0,
+        completed: 0,
+        failed: 0,
+        running: 0,
+        durationSumMs: 0,
+        finished: 0,
+      };
+      stats.total += row.count;
+      if (row.status === 'completed') stats.completed += row.count;
+      else if (row.status === 'failed') stats.failed += row.count;
+      else stats.running += row.count;
+      if (row.avgMs !== null) {
+        stats.durationSumMs += row.avgMs * row.count;
+        stats.finished += row.count;
+      }
+      perType.set(type, stats);
+    }
+
+    const byType = [...perType.values()]
+      .sort((a, b) => b.total - a.total || a.type.localeCompare(b.type))
+      .map(({ durationSumMs, finished, ...stats }) => ({
+        ...stats,
+        ...(finished > 0
+          ? { avgDurationMs: Math.round(durationSumMs / finished) }
+          : {}),
+      }));
+
+    const totals = [...perType.values()].reduce(
+      (acc, t) => ({
+        completed: acc.completed + t.completed,
+        failed: acc.failed + t.failed,
+        running: acc.running + t.running,
+        durationSumMs: acc.durationSumMs + t.durationSumMs,
+        finished: acc.finished + t.finished,
+      }),
+      { completed: 0, failed: 0, running: 0, durationSumMs: 0, finished: 0 },
+    );
+    const decided = totals.completed + totals.failed;
+
+    return {
+      totalMissions: decided + totals.running,
+      completed: totals.completed,
+      failed: totals.failed,
+      running: totals.running,
+      ...(decided > 0 ? { successRate: totals.completed / decided } : {}),
+      ...(totals.finished > 0
+        ? { avgDurationMs: Math.round(totals.durationSumMs / totals.finished) }
+        : {}),
+      flaggedInvoices,
+      byType,
+      gadgets,
+    };
   }
 
   async storedEvents(missionId: string): Promise<MissionEvent[]> {

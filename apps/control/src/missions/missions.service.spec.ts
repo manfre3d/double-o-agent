@@ -43,6 +43,11 @@ function build() {
     list: jest.fn().mockResolvedValue([]),
     exists: jest.fn().mockResolvedValue(false),
     getEvents: jest.fn().mockResolvedValue([]),
+    analytics: jest.fn().mockResolvedValue({
+      typeStatus: [],
+      gadgets: [],
+      flaggedInvoices: 0,
+    }),
   };
 
   return {
@@ -124,6 +129,73 @@ describe('MissionsService', () => {
     ]);
     const history = await service.history();
     expect(history[0].title).toBe('Caccia ai doppioni');
+  });
+
+  it('folds analytics rows into the aggregate stats DTO', async () => {
+    const { service, repo } = build();
+    repo.analytics.mockResolvedValue({
+      typeStatus: [
+        {
+          type: 'duplicate-hunt',
+          status: 'completed',
+          count: 4,
+          avgMs: 10_000,
+        },
+        { type: 'duplicate-hunt', status: 'failed', count: 1, avgMs: 20_000 },
+        { type: 'extraction', status: 'completed', count: 2, avgMs: 5_000 },
+        { type: 'extraction', status: 'running', count: 1, avgMs: null },
+      ],
+      gadgets: [{ gadget: 'compare_invoices', calls: 12, failures: 1 }],
+      flaggedInvoices: 7,
+    });
+
+    const stats = await service.analytics();
+    expect(stats).toEqual({
+      totalMissions: 8,
+      completed: 6,
+      failed: 1,
+      running: 1,
+      successRate: 6 / 7,
+      avgDurationMs: 10_000,
+      flaggedInvoices: 7,
+      byType: [
+        {
+          type: 'duplicate-hunt',
+          title: 'Caccia ai doppioni',
+          total: 5,
+          completed: 4,
+          failed: 1,
+          running: 0,
+          avgDurationMs: 12_000,
+        },
+        {
+          type: 'extraction',
+          title: 'Decifrazione del dossier',
+          total: 3,
+          completed: 2,
+          failed: 0,
+          running: 1,
+          avgDurationMs: 5_000,
+        },
+      ],
+      gadgets: [{ gadget: 'compare_invoices', calls: 12, failures: 1 }],
+    });
+  });
+
+  it('returns zeroed analytics with no rates when the archive is empty', async () => {
+    const { service } = build();
+    const stats = await service.analytics();
+    expect(stats).toEqual({
+      totalMissions: 0,
+      completed: 0,
+      failed: 0,
+      running: 0,
+      flaggedInvoices: 0,
+      byType: [],
+      gadgets: [],
+    });
+    expect(stats.successRate).toBeUndefined();
+    expect(stats.avgDurationMs).toBeUndefined();
   });
 
   it('throws NotFound for unknown live streams and stored events', async () => {

@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import type { StatusReportDto } from '@double-o/shared';
+import type { MissionAnalyticsDto, StatusReportDto } from '@double-o/shared';
 import { App } from './app';
 
 describe('App', () => {
@@ -28,8 +28,18 @@ describe('App', () => {
       reportedAt: new Date().toISOString(),
     };
     const http = TestBed.inject(HttpTestingController);
+    const emptyAnalytics: MissionAnalyticsDto = {
+      totalMissions: 0,
+      completed: 0,
+      failed: 0,
+      running: 0,
+      flaggedInvoices: 0,
+      byType: [],
+      gadgets: [],
+    };
     http.expectOne('/api/status').flush(report);
     http.expectOne('/api/missions').flush([]);
+    http.expectOne('/api/missions/analytics').flush(emptyAnalytics);
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;

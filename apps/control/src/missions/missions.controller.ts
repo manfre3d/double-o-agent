@@ -13,6 +13,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Observable, map } from 'rxjs';
 import type {
+  MissionAnalyticsDto,
   MissionEvent,
   MissionSummaryDto,
   StartMissionRequestDto,
@@ -57,6 +58,11 @@ export class MissionsController {
   @Get()
   list(): Promise<MissionSummaryDto[]> {
     return this.missions.history();
+  }
+
+  @Get('analytics')
+  analytics(): Promise<MissionAnalyticsDto> {
+    return this.missions.analytics();
   }
 
   @Get(':id/events')
