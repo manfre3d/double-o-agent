@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-> **Status: Stretch 1 (PDF invoice upload) complete — extraction missions run over uploaded PDFs: `POST /api/missions/extract`, `read_document`/`record_invoice` gadgets, dossier upload button in HQ. Remaining stretch goals: Q Branch evals, HQ analytics, deploy; see ROADMAP.md.** Update this line as phases complete.
+> **Status: Stretch 2 (Q Branch evals) complete — golden-set eval harness in `apps/control/src/qbranch`: `npm run eval` scores the agent through the production briefs (`missions/mission-briefs.ts`), demo-replayable subset without an API key, full set live; CI runs it on every push. Remaining stretch goals: HQ analytics, deploy; see ROADMAP.md.** Update this line as phases complete.
 
 Double-O Agent is a 007-parody web app whose "secret agent" is an AI agent running SMB-finance missions (invoice extraction, duplicate hunting, reconciliation), streamed live to a spy-noir dashboard. The full what-and-why, stack rationale, and build phases live in [ROADMAP.md](./ROADMAP.md) — read it before proposing structural changes.
 
@@ -28,6 +28,7 @@ npm run control        # start NestJS backend (apps/control)
 npm run hq             # start Angular frontend (apps/hq)
 npm run test           # all workspace tests
 npm run lint           # all workspace lints
+npm run eval           # Q Branch quality control: score the agent on the golden set
 ```
 
 ## Architecture

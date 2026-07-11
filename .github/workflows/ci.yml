@@ -31,6 +31,12 @@ jobs:
 
       - run: npm run test
 
+      # Q Branch quality control: scripted-demo subset when the secret is
+      # missing, the full golden set against the live LLM when it is set
+      - run: npm run eval --workspace=control
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
       - run: npm run build --workspace=control
 
       - run: npm run build --workspace=hq
