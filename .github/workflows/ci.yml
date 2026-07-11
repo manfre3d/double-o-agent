@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      # prisma.config.ts resolves this at load time (npm ci → prisma generate);
+      # nothing in CI actually connects to it.
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/double_o_ci
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      # postinstall runs prisma generate, so the client exists before builds
+      - run: npm ci
+
+      # shared types must exist before typed linting and the app builds
+      - run: npm run build --workspace=@double-o/shared
+
+      - run: npm run lint
+
+      - run: npm run test
+
+      - run: npm run build --workspace=control
+
+      - run: npm run build --workspace=hq
