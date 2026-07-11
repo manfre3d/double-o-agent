@@ -146,6 +146,12 @@
   @include mixins.redacted($color: var(--ink), $delay: 400ms);
 }
 
+.dossier-extract {
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-3);
+  border-left: 3px solid var(--gold-dim);
+}
+
 .dossier-flags {
   margin: var(--space-3) 0 0;
   padding: 0;

@@ -1,6 +1,6 @@
-import type { FlaggedInvoiceDto } from './invoice.dto';
+import type { ExtractedInvoiceDto, FlaggedInvoiceDto } from './invoice.dto';
 
-export type MissionType = 'duplicate-hunt';
+export type MissionType = 'duplicate-hunt' | 'extraction';
 
 export type MissionStatus = 'running' | 'completed' | 'failed';
 
@@ -27,4 +27,6 @@ export interface MissionSummaryDto {
   /** Stored debrief prose — Italian, per the lore language rule. */
   debrief?: string;
   flagged: FlaggedInvoiceDto[];
+  /** Present on completed extraction missions. */
+  extracted?: ExtractedInvoiceDto;
 }

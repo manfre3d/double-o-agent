@@ -29,6 +29,12 @@
             @if (m.debrief) {
               <h3 class="dossier-heading">Rapporto di missione</h3>
               <p class="dossier-debrief"><span class="dossier-redacted">{{ m.debrief }}</span></p>
+              @if (m.extracted; as invoice) {
+                <p class="dossier-extract">
+                  Fattura {{ invoice.number }} &middot; {{ invoice.counterparty }} &middot;
+                  {{ amount(invoice) }} &middot; {{ invoice.issueDate | date: 'dd/MM/yyyy' }}
+                </p>
+              }
               @if (m.flagged.length) {
                 <ul class="dossier-flags">
                   @for (flag of m.flagged; track flag.invoiceId) {

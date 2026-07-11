@@ -1,5 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import type { Observable } from 'rxjs';
 import {
   MISSION_EVENT_TYPES,
   type MissionEvent,
@@ -19,6 +20,27 @@ export class MissionService {
   readonly finishedCount = signal(0);
 
   start(): void {
+    const body: StartMissionRequestDto = { type: 'duplicate-hunt' };
+    this.launch(
+      this.http.post<StartMissionResponseDto>('/api/missions', body),
+      'Impossibile contattare Control.',
+    );
+  }
+
+  /** Uploads a PDF and follows the extraction mission it starts. */
+  startExtraction(file: File): void {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    this.launch(
+      this.http.post<StartMissionResponseDto>('/api/missions/extract', form),
+      'Dossier respinto: serve un PDF con testo leggibile.',
+    );
+  }
+
+  private launch(
+    request: Observable<StartMissionResponseDto>,
+    failureMessage: string,
+  ): void {
     if (this.running()) {
       return;
     }
@@ -27,12 +49,11 @@ export class MissionService {
     this.linkError.set(undefined);
     this.running.set(true);
 
-    const body: StartMissionRequestDto = { type: 'duplicate-hunt' };
-    this.http.post<StartMissionResponseDto>('/api/missions', body).subscribe({
+    request.subscribe({
       next: ({ missionId }) => this.listen(missionId),
       error: () => {
         this.running.set(false);
-        this.linkError.set('Impossibile contattare Control.');
+        this.linkError.set(failureMessage);
       },
     });
   }

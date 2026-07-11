@@ -8,6 +8,8 @@ import {
 import { ListInvoicesGadget } from './list-invoices.gadget';
 import { CompareInvoicesGadget } from './compare-invoices.gadget';
 import { FlagInvoiceGadget } from './flag-invoice.gadget';
+import { ReadDocumentGadget } from './read-document.gadget';
+import { RecordInvoiceGadget } from './record-invoice.gadget';
 
 export interface ToolDefinition {
   name: string;
@@ -24,12 +26,24 @@ export class GadgetRegistry {
     listInvoices: ListInvoicesGadget,
     compareInvoices: CompareInvoicesGadget,
     flagInvoice: FlagInvoiceGadget,
+    readDocument: ReadDocumentGadget,
+    recordInvoice: RecordInvoiceGadget,
   ) {
-    this.gadgets = [listInvoices, compareInvoices, flagInvoice];
+    this.gadgets = [
+      listInvoices,
+      compareInvoices,
+      flagInvoice,
+      readDocument,
+      recordInvoice,
+    ];
   }
 
-  toolDefinitions(): ToolDefinition[] {
-    return this.gadgets.map((g) => ({
+  /** Definitions for the LLM; `only` limits them to the mission's gadget set. */
+  toolDefinitions(only?: string[]): ToolDefinition[] {
+    const exposed = only
+      ? this.gadgets.filter((g) => only.includes(g.name))
+      : this.gadgets;
+    return exposed.map((g) => ({
       name: g.name,
       description: g.description,
       parameters: g.paramsSchema,

@@ -24,14 +24,31 @@
 
   <section class="mission" aria-live="polite">
     <h2 class="section-eyebrow">Live mission</h2>
-    <button
-      type="button"
-      class="mission-launch"
-      (click)="mission.start()"
-      [disabled]="mission.running()"
-    >
-      {{ mission.running() ? 'Missione in corso…' : 'Avvia missione' }}
-    </button>
+    <div class="mission-actions">
+      <button
+        type="button"
+        class="mission-launch"
+        (click)="mission.start()"
+        [disabled]="mission.running()"
+      >
+        {{ mission.running() ? 'Missione in corso…' : 'Avvia missione' }}
+      </button>
+      <button
+        type="button"
+        class="mission-launch mission-launch--dossier"
+        (click)="dossierInput.click()"
+        [disabled]="mission.running()"
+      >
+        Consegna dossier (PDF)
+      </button>
+      <input
+        #dossierInput
+        type="file"
+        accept="application/pdf"
+        hidden
+        (change)="onDossierSelected(dossierInput)"
+      />
+    </div>
     @if (mission.linkError(); as error) {
       <p class="status-line status-line--down">{{ error }}</p>
     }

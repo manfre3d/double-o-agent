@@ -125,6 +125,30 @@
   @include mixins.redacted($color: var(--ink), $delay: 700ms);
 }
 
+// Typewritten field list for the recorded invoice (extraction missions).
+.debrief-record {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: var(--space-3);
+  row-gap: var(--space-1);
+  margin: var(--space-3) 0 0;
+  padding-top: var(--space-2);
+  border-top: 1px dashed var(--ink-faint);
+
+  dt {
+    font-size: 0.7rem;
+    line-height: 1.9;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 600;
+  }
+}
+
 .debrief-flags {
   margin: var(--space-3) 0 0;
   padding: 0;

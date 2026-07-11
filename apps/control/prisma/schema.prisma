@@ -19,6 +19,8 @@ model Mission {
   debrief    String?
   /// FlaggedInvoiceDto[] as JSON.
   flagged    Json      @default("[]")
+  /// ExtractedInvoiceDto as JSON (extraction missions only).
+  extracted  Json?
   events     MissionEvent[]
 }
 

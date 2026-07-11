@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { DatePipe, JsonPipe } from '@angular/common';
 import type { MissionEvent } from '@double-o/shared';
 import { TypewriterText } from './typewriter-text';
+import { formatInvoiceAmount } from './format-amount';
 
 @Component({
   selector: 'app-mission-feed',
@@ -18,4 +19,6 @@ export class MissionFeed {
   protected compact(params: Record<string, unknown>): string {
     return JSON.stringify(params);
   }
+
+  protected readonly amount = formatInvoiceAmount;
 }

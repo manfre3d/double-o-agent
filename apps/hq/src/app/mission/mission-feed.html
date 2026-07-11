@@ -34,6 +34,18 @@
               <span class="debrief-stamp">Top secret</span>
               <h3 class="debrief-title">Rapporto di missione</h3>
               <p class="debrief-text"><span class="debrief-redacted">{{ event.text }}</span></p>
+              @if (event.extracted; as invoice) {
+                <dl class="debrief-record">
+                  <dt>Fattura n.</dt>
+                  <dd>{{ invoice.number }}</dd>
+                  <dt>Fornitore</dt>
+                  <dd>{{ invoice.counterparty }}</dd>
+                  <dt>Importo</dt>
+                  <dd>{{ amount(invoice) }}</dd>
+                  <dt>Emessa il</dt>
+                  <dd>{{ invoice.issueDate | date: 'dd/MM/yyyy' }}</dd>
+                </dl>
+              }
               @if (event.flagged.length) {
                 <ul class="debrief-flags">
                   @for (flag of event.flagged; track flag.invoiceId) {

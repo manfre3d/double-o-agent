@@ -10,6 +10,8 @@ import { InvoicesRepository } from '../gadgets/invoices.repository';
 import { ListInvoicesGadget } from '../gadgets/list-invoices.gadget';
 import { CompareInvoicesGadget } from '../gadgets/compare-invoices.gadget';
 import { FlagInvoiceGadget } from '../gadgets/flag-invoice.gadget';
+import { ReadDocumentGadget } from '../gadgets/read-document.gadget';
+import { RecordInvoiceGadget } from '../gadgets/record-invoice.gadget';
 
 const spec: MissionRunSpec = {
   missionId: 'm1',
@@ -17,6 +19,8 @@ const spec: MissionRunSpec = {
   title: 'Caccia ai doppioni',
   objective: 'Trovare i doppioni.',
   task: 'Begin the duplicate hunt.',
+  instructions: 'Your mission: hunt duplicate invoices.',
+  gadgets: ['list_invoices', 'compare_invoices', 'flag_invoice'],
 };
 
 function buildLoop(turns: AssistantTurn[] | Error) {
@@ -25,6 +29,8 @@ function buildLoop(turns: AssistantTurn[] | Error) {
     new ListInvoicesGadget(repo),
     new CompareInvoicesGadget(repo),
     new FlagInvoiceGadget(repo),
+    new ReadDocumentGadget(),
+    new RecordInvoiceGadget(),
   );
   const chat = jest.fn<Promise<AssistantTurn>, unknown[]>();
   if (turns instanceof Error) {
@@ -38,9 +44,10 @@ function buildLoop(turns: AssistantTurn[] | Error) {
 
 async function runCollecting(
   loop: AgentLoopService,
+  runSpec: MissionRunSpec = spec,
 ): Promise<MissionEventDraft[]> {
   const events: MissionEventDraft[] = [];
-  await loop.run(spec, (draft) => events.push(draft));
+  await loop.run(runSpec, (draft) => events.push(draft));
   return events;
 }
 
@@ -83,7 +90,7 @@ describe('AgentLoopService', () => {
     });
   });
 
-  it('exposes every registered gadget to the LLM', async () => {
+  it("exposes exactly the mission's gadget set to the LLM", async () => {
     const { loop, chat } = buildLoop([{ text: 'Fine.', toolCalls: [] }]);
     await runCollecting(loop);
 
@@ -93,6 +100,55 @@ describe('AgentLoopService', () => {
       'compare_invoices',
       'flag_invoice',
     ]);
+  });
+
+  it('runs an extraction mission: document in, recorded invoice out', async () => {
+    const extractionSpec: MissionRunSpec = {
+      ...spec,
+      title: 'Decifrazione del dossier',
+      objective: 'Estrarre i dati della fattura.',
+      task: 'Extract the invoice data from the attached document "fattura.pdf".',
+      instructions: 'Your mission: extract the invoice data.',
+      gadgets: ['read_document', 'record_invoice'],
+      document: { filename: 'fattura.pdf', text: 'Fattura n. FT-1 …' },
+    };
+    const recorded = {
+      number: 'FT-1',
+      counterparty: 'Rossi S.r.l.',
+      amount: 100,
+      currency: 'EUR',
+      issueDate: '2026-06-18',
+    };
+    const { loop, chat } = buildLoop([
+      {
+        text: 'Apro il dossier.',
+        toolCalls: [{ id: 'c1', name: 'read_document', args: {} }],
+      },
+      {
+        toolCalls: [{ id: 'c2', name: 'record_invoice', args: recorded }],
+      },
+      { text: 'Rapporto finale.', toolCalls: [] },
+    ]);
+
+    const events: MissionEventDraft[] = [];
+    await loop.run(extractionSpec, (draft) => events.push(draft));
+
+    const tools = chat.mock.calls[0][1] as { name: string }[];
+    expect(tools.map((t) => t.name)).toEqual([
+      'read_document',
+      'record_invoice',
+    ]);
+    const readResult = events.find((e) => e.type === 'gadget_result');
+    expect(readResult).toMatchObject({
+      ok: true,
+      result: extractionSpec.document,
+    });
+    expect(events.at(-1)).toEqual({
+      type: 'debrief',
+      text: 'Rapporto finale.',
+      flagged: [],
+      extracted: recorded,
+    });
   });
 
   it('feeds gadget failures back to the LLM instead of crashing', async () => {

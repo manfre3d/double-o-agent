@@ -4,10 +4,11 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { MissionsController } from './missions.controller';
 import { MissionsService } from './missions.service';
 import { MissionsRepository } from './missions.repository';
+import { PdfTextService } from './pdf-text.service';
 
 @Module({
   imports: [AgentModule, PrismaModule],
   controllers: [MissionsController],
-  providers: [MissionsService, MissionsRepository],
+  providers: [MissionsService, MissionsRepository, PdfTextService],
 })
 export class MissionsModule {}

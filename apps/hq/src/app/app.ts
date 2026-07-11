@@ -17,4 +17,13 @@ export class App {
   protected readonly controlStatus = httpResource<StatusReportDto>(() => '/api/status');
   protected readonly mission = inject(MissionService);
   protected readonly introDone = signal(false);
+
+  protected onDossierSelected(input: HTMLInputElement): void {
+    const file = input.files?.[0];
+    // Reset so picking the same file again re-fires the change event.
+    input.value = '';
+    if (file) {
+      this.mission.startExtraction(file);
+    }
+  }
 }

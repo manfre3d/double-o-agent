@@ -8,6 +8,14 @@ import {
   MissionRunSpec,
 } from '../agent/agent-loop.service';
 
+const SAMPLE_EXTRACTED = {
+  number: 'FT-2026/0203',
+  counterparty: 'Officine Meccaniche Franchi S.r.l.',
+  amount: 1842.2,
+  currency: 'EUR',
+  issueDate: '2026-06-18',
+};
+
 function build() {
   const fakeLoop = {
     run: (spec: MissionRunSpec, emit: EmitFn) => {
@@ -17,7 +25,12 @@ function build() {
         title: spec.title,
         objective: spec.objective,
       });
-      emit({ type: 'debrief', text: 'Fine.', flagged: [] });
+      emit({
+        type: 'debrief',
+        text: 'Fine.',
+        flagged: [],
+        ...(spec.document ? { extracted: SAMPLE_EXTRACTED } : {}),
+      });
       return Promise.resolve();
     },
   } as AgentLoopService;
@@ -71,6 +84,31 @@ describe('MissionsService', () => {
       status: 'completed',
       debrief: 'Fine.',
       flagged: [],
+    });
+  });
+
+  it('starts an extraction mission and persists the recorded invoice', async () => {
+    const { service, repo } = build();
+    const { missionId } = await service.startExtraction({
+      filename: 'fattura.pdf',
+      text: 'Fattura n. FT-2026/0203 …',
+    });
+
+    expect(repo.create).toHaveBeenCalledWith({
+      id: missionId,
+      code: '007-001',
+      type: 'extraction',
+    });
+
+    const events = await firstValueFrom(
+      service.eventStream(missionId).pipe(toArray()),
+    );
+    expect(events.map((e) => e.type)).toEqual(['briefing', 'debrief']);
+    expect(repo.finish).toHaveBeenCalledWith(missionId, {
+      status: 'completed',
+      debrief: 'Fine.',
+      flagged: [],
+      extracted: SAMPLE_EXTRACTED,
     });
   });
 

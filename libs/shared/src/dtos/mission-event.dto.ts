@@ -1,4 +1,4 @@
-import type { FlaggedInvoiceDto } from './invoice.dto';
+import type { ExtractedInvoiceDto, FlaggedInvoiceDto } from './invoice.dto';
 
 export const MISSION_EVENT_TYPES = [
   'briefing',
@@ -49,6 +49,8 @@ export interface DebriefEvent extends MissionEventBase {
   type: 'debrief';
   text: string;
   flagged: FlaggedInvoiceDto[];
+  /** Present on extraction missions that recorded an invoice. */
+  extracted?: ExtractedInvoiceDto;
 }
 
 export interface MissionErrorEvent extends MissionEventBase {

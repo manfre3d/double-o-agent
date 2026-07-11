@@ -72,6 +72,12 @@
   margin-bottom: 0;
 }
 
+.mission-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
 .mission-launch {
   padding: 0.7rem 2.2rem;
   border: 1px solid var(--gold);
@@ -98,6 +104,22 @@
     border-color: var(--gold-dim);
     color: var(--gold-dim);
     cursor: wait;
+  }
+
+  // Secondary action: hands a PDF to Control — phosphor, so gold stays scarce.
+  &--dossier {
+    border-color: var(--phosphor-dim);
+    color: var(--phosphor);
+
+    &:hover:not(:disabled) {
+      background: var(--phosphor);
+      color: var(--noir-black);
+    }
+
+    &:disabled {
+      border-color: var(--phosphor-dim);
+      color: var(--phosphor-dim);
+    }
   }
 }
 

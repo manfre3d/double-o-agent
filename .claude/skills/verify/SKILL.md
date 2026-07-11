@@ -19,6 +19,7 @@ Playwright is not a repo dependency. Install it in the session scratchpad (`npm 
 Key flows and selectors:
 - **Gun-barrel intro** plays on load (~2.7s): overlay `.barrel-screen`, click it to skip, wait for `detached` before touching the page. It never renders under `reducedMotion: 'reduce'` contexts or when `matchMedia` is missing.
 - **Launch a mission**: click the `Avvia missione` button (`.mission-launch`); it disables and relabels while running. Feed entries are `.feed-entry`; typewriter caret is `.caret`; the mission ends when `.debrief` appears (allow 120s for live LLM).
+- **Upload a dossier (extraction mission)**: the `Consegna dossier (PDF)` button proxies a hidden `input[type="file"]` — use `page.setInputFiles('input[type="file"]', pdfPath)` directly. Sample invoice: `apps/control/test/fixtures/fattura-di-prova.pdf`. The debrief card shows the recorded fields in `.debrief-record`; opening the archive card shows a `.dossier-extract` summary line.
 - **Archive**: `.dossier-face` toggles a card; body is `.dossier-body`, stored debrief text `.dossier-redacted` (unredacts ~400ms after open), replay transcript is an instant `app-mission-feed` inside the body.
 
 Gotchas:

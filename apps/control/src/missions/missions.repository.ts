@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { Prisma } from '../generated/prisma/client';
 import type {
+  ExtractedInvoiceDto,
   FlaggedInvoiceDto,
   MissionEvent,
   MissionStatus,
@@ -43,6 +44,7 @@ export class MissionsRepository {
       status: MissionStatus;
       debrief?: string;
       flagged: FlaggedInvoiceDto[];
+      extracted?: ExtractedInvoiceDto;
     },
   ): Promise<void> {
     await this.prisma.mission.update({
@@ -51,6 +53,7 @@ export class MissionsRepository {
         status: outcome.status,
         debrief: outcome.debrief,
         flagged: outcome.flagged as unknown as Prisma.InputJsonValue,
+        extracted: outcome.extracted as unknown as Prisma.InputJsonValue,
         finishedAt: new Date(),
       },
     });
@@ -69,6 +72,8 @@ export class MissionsRepository {
       finishedAt: row.finishedAt?.toISOString(),
       debrief: row.debrief ?? undefined,
       flagged: row.flagged as unknown as FlaggedInvoiceDto[],
+      extracted: (row.extracted ?? undefined) as
+        ExtractedInvoiceDto | undefined,
     }));
   }
 

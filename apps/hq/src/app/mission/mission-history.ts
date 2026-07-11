@@ -10,6 +10,7 @@ import { httpResource } from '@angular/common/http';
 import type { MissionEvent, MissionStatus, MissionSummaryDto } from '@double-o/shared';
 import { MissionService } from './mission.service';
 import { MissionFeed } from './mission-feed';
+import { formatInvoiceAmount } from './format-amount';
 
 const STATUS_LABELS: Record<MissionStatus, string> = {
   running: 'IN CORSO',
@@ -52,6 +53,8 @@ export class MissionHistory {
   protected statusLabel(status: MissionStatus): string {
     return STATUS_LABELS[status];
   }
+
+  protected readonly amount = formatInvoiceAmount;
 
   protected stampLabel(status: MissionStatus): string {
     return STAMP_LABELS[status];

@@ -8,7 +8,7 @@ import type {
   ThinkingEvent,
 } from '@double-o/shared';
 import { GadgetRegistry } from '../gadgets/gadget.registry';
-import { MissionContext } from '../gadgets/gadget.interface';
+import { MissionContext, MissionDocument } from '../gadgets/gadget.interface';
 import { LlmService } from './llm.service';
 import { ChatMessage } from './agent.types';
 
@@ -31,20 +31,23 @@ export interface MissionRunSpec {
   objective: string;
   /** English task prompt handed to the LLM as the user message. */
   task: string;
+  /** English mission-specific rules, appended to the shared system prompt. */
+  instructions: string;
+  /** Gadget names exposed to the LLM for this mission. */
+  gadgets: string[];
+  /** Uploaded document, attached to extraction missions. */
+  document?: MissionDocument;
 }
 
 const MAX_TURNS = 12;
 
-const SYSTEM_PROMPT = `You are Double-O Agent, an AI field agent working for a small-business finance team.
-Your mission: hunt duplicate invoices in the current batch, using only the tools provided.
+const SYSTEM_PROMPT = `You are Double-O Agent, an AI field agent working for a small-business finance team, completing the current mission using only the tools provided.
 
 Rules:
 - Inspect the data with tools before drawing any conclusion.
-- A duplicate is the same supplier invoice entered more than once; formatting differences in the invoice number or a one-day date slip do not make two entries distinct.
-- Verify each suspicion with a comparison before flagging, and flag the redundant copy, not the original.
 - Everything you write is streamed live to an Italian-speaking user: write all prose (interim notes, flag reasons, final report) in Italian — terse, professional, with a light 1960s spy-film flavor. Never switch to English.
-- Your words are rendered verbatim on a plain-text feed: no markdown of any kind (no **bold**, bullet lists, or headers) — write flowing prose; name invoices inline by their id.
-- When the hunt is complete, reply without any tool call: that final message is the mission debrief. Summarize what was scanned, what was flagged and why, and any anomaly worth a follow-up.`;
+- Your words are rendered verbatim on a plain-text feed: no markdown of any kind (no **bold**, bullet lists, or headers) — write flowing prose.
+- When the mission is complete, reply without any tool call: that final message is the mission debrief, summarizing what was done and any anomaly worth a follow-up.`;
 
 @Injectable()
 export class AgentLoopService {
@@ -61,10 +64,14 @@ export class AgentLoopService {
       objective: spec.objective,
     });
 
-    const ctx: MissionContext = { missionId: spec.missionId, flagged: [] };
-    const tools = this.registry.toolDefinitions();
+    const ctx: MissionContext = {
+      missionId: spec.missionId,
+      flagged: [],
+      document: spec.document,
+    };
+    const tools = this.registry.toolDefinitions(spec.gadgets);
     const messages: ChatMessage[] = [
-      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'system', content: `${SYSTEM_PROMPT}\n\n${spec.instructions}` },
       { role: 'user', content: spec.task },
     ];
 
@@ -77,6 +84,7 @@ export class AgentLoopService {
             type: 'debrief',
             text: reply.text ?? 'Missione conclusa.',
             flagged: ctx.flagged,
+            ...(ctx.extracted ? { extracted: ctx.extracted } : {}),
           });
           return;
         }
