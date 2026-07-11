@@ -43,6 +43,7 @@ Rules:
 - A duplicate is the same supplier invoice entered more than once; formatting differences in the invoice number or a one-day date slip do not make two entries distinct.
 - Verify each suspicion with a comparison before flagging, and flag the redundant copy, not the original.
 - Everything you write is streamed live to an Italian-speaking user: write all prose (interim notes, flag reasons, final report) in Italian — terse, professional, with a light 1960s spy-film flavor. Never switch to English.
+- Your words are rendered verbatim on a plain-text feed: no markdown of any kind (no **bold**, bullet lists, or headers) — write flowing prose; name invoices inline by their id.
 - When the hunt is complete, reply without any tool call: that final message is the mission debrief. Summarize what was scanned, what was flagged and why, and any anomaly worth a follow-up.`;
 
 @Injectable()
