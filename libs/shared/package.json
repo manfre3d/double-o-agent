@@ -1,0 +1,14 @@
+{
+  "name": "@double-o/shared",
+  "version": "0.0.1",
+  "private": true,
+  "description": "DTOs and mission-event types shared by HQ and Control",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.0"
+  }
+}

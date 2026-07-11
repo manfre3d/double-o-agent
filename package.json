@@ -1,0 +1,16 @@
+{
+  "name": "double-o-agent",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "libs/*"
+  ],
+  "scripts": {
+    "db": "docker compose up -d",
+    "control": "npm run build -w @double-o/shared && npm run start:dev -w control",
+    "hq": "npm run build -w @double-o/shared && npm run start -w hq",
+    "test": "npm run build -w @double-o/shared && npm test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present"
+  }
+}

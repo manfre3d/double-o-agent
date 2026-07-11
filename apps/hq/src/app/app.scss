@@ -1,0 +1,50 @@
+.hq {
+  min-height: 100dvh;
+  display: grid;
+  place-content: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  text-align: center;
+}
+
+.hq-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.hq-subtitle {
+  margin: var(--space-2) 0 0;
+  letter-spacing: 0.1em;
+  opacity: 0.7;
+}
+
+.status-report {
+  font-family: var(--font-mono);
+}
+
+.status-heading {
+  margin: 0 0 var(--space-2);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.status-line {
+  margin: 0;
+  color: var(--phosphor);
+
+  &--down {
+    color: var(--blood-red);
+  }
+}
+
+.status-codename {
+  color: var(--gold);
+  text-transform: uppercase;
+}
