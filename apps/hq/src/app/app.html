@@ -96,7 +96,7 @@
           (click)="dossierInput.click()"
           [disabled]="mission.running()"
         >
-          {{ language.t('submitDossier') }}
+          {{ mission.running() ? language.t('missionRunning') : language.t('submitDossier') }}
         </button>
         <input
           #dossierInput
@@ -112,6 +112,9 @@
         <p class="mission-error-eyebrow">{{ language.t('transmissionInterrupted') }}</p>
         <p class="mission-error-text">{{ language.t(error) }}</p>
       </div>
+    }
+    @if (mission.preparing(); as preparing) {
+      <p class="mission-processing loading-cursor">{{ language.t(preparing) }}</p>
     }
     @if (mission.events().length) {
       <app-mission-feed [events]="mission.events()" />

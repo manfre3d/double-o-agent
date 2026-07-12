@@ -16,6 +16,12 @@ export class MissionService {
 
   readonly events = signal<MissionEvent[]>([]);
   readonly running = signal(false);
+  /**
+   * Translation key for the pre-stream phase — upload, PDF parsing, and the wait
+   * for the first event — cleared the moment events start flowing or the run ends.
+   * Fills the dead air a dossier upload would otherwise show.
+   */
+  readonly preparing = signal<TranslationKey | undefined>(undefined);
   /** Translation key for the current link failure, if any — the view renders it in the active language. */
   readonly linkError = signal<TranslationKey | undefined>(undefined);
   /** Bumped when a mission ends — history views reload on it. */
@@ -26,6 +32,7 @@ export class MissionService {
     this.launch(
       this.http.post<StartMissionResponseDto>('/api/missions', body),
       'errStartMission',
+      'preparingMission',
     );
   }
 
@@ -36,12 +43,14 @@ export class MissionService {
     this.launch(
       this.http.post<StartMissionResponseDto>('/api/missions/extract', form),
       'errDossierRejected',
+      'preparingDossier',
     );
   }
 
   private launch(
     request: Observable<StartMissionResponseDto>,
     failureMessage: TranslationKey,
+    preparingMessage: TranslationKey,
   ): void {
     if (this.running()) {
       return;
@@ -50,11 +59,13 @@ export class MissionService {
     this.events.set([]);
     this.linkError.set(undefined);
     this.running.set(true);
+    this.preparing.set(preparingMessage);
 
     request.subscribe({
       next: ({ missionId }) => this.listen(missionId),
       error: () => {
         this.running.set(false);
+        this.preparing.set(undefined);
         this.linkError.set(failureMessage);
       },
     });
@@ -67,6 +78,7 @@ export class MissionService {
     for (const type of MISSION_EVENT_TYPES) {
       source.addEventListener(type, (msg) => {
         const event = JSON.parse((msg as MessageEvent<string>).data) as MissionEvent;
+        this.preparing.set(undefined);
         this.events.update((list) => [...list, event]);
         if (event.type === 'debrief' || event.type === 'error') {
           this.running.set(false);
@@ -83,6 +95,7 @@ export class MissionService {
         this.running.set(false);
         this.linkError.set('errLinkInterrupted');
       }
+      this.preparing.set(undefined);
       this.close();
     };
   }

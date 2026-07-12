@@ -544,6 +544,18 @@
   width: 100%;
 }
 
+// Pre-stream readout: the link is open and Control is decrypting the dossier,
+// but no events have arrived yet. Phosphor channel rule echoes the status strip.
+.mission-processing {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-left: 3px solid var(--phosphor-dim);
+  color: var(--phosphor);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+}
+
 // Archive drawers and the closing colophon, separated by file dividers.
 .analytics,
 .history,

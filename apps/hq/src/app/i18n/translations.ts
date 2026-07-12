@@ -29,6 +29,8 @@ const en = {
   startMission: 'Start mission',
   missionRunning: 'Mission running…',
   submitDossier: 'Submit dossier (PDF)',
+  preparingMission: 'Establishing secure link',
+  preparingDossier: 'Decrypting the dossier',
   transmissionInterrupted: 'Transmission interrupted',
 
   // MissionService link errors
@@ -131,6 +133,8 @@ const it: Record<TranslationKey, string> = {
   startMission: 'Avvia missione',
   missionRunning: 'Missione in corso…',
   submitDossier: 'Consegna dossier (PDF)',
+  preparingMission: 'Collegamento sicuro in corso',
+  preparingDossier: 'Decrittazione del dossier',
   transmissionInterrupted: 'Trasmissione interrotta',
 
   errStartMission: 'Impossibile contattare Control.',
