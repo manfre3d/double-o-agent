@@ -6,6 +6,8 @@ services:
     name: double-o-agent
     runtime: node
     plan: free
+    # Next to the Neon Postgres (AWS eu-central-1) — app↔DB latency dominates.
+    region: frankfurt
     buildCommand: npm ci && npm run build
     # Migrations run before boot so the schema always matches the code.
     startCommand: npx prisma migrate deploy && npm run start:prod --workspace=control
