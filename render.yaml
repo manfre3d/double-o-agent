@@ -1,0 +1,22 @@
+# Render Blueprint — one web service: Control serves the API and HQ's built
+# bundle from the same origin. Postgres lives on Neon; paste its connection
+# string as DATABASE_URL when Render prompts for it.
+services:
+  - type: web
+    name: double-o-agent
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    # Migrations run before boot so the schema always matches the code.
+    startCommand: npx prisma migrate deploy && npm run start:prod --workspace=control
+    healthCheckPath: /api/status
+    # Deploy only after the GitHub Actions run on main is green.
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: DATABASE_URL
+        sync: false
+      # Optional: leave empty to run missions on the scripted demo brain.
+      - key: OPENAI_API_KEY
+        sync: false

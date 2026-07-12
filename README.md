@@ -50,6 +50,16 @@ npm run eval           # Q Branch quality control (see below)
 
 `npm run eval` scores the agent against a golden set of missions (`apps/control/src/qbranch/`): known invoices and duplicate batches with expected outcomes, replayed through the production prompts and agent loop. With a real API key the full set runs against the live LLM and the run fails below `--min-score` (default 80%); without one, a deterministic demo-replayable subset runs. CI executes lint, tests, both builds, and the eval on every push.
 
+## Deploy (Render + Neon)
+
+Production is a single Render web service: Control serves the API **and** HQ's built bundle from the same origin (no CORS, no second deploy). The database is a free [Neon](https://neon.tech) Postgres. Everything is declared in [`render.yaml`](./render.yaml).
+
+1. Create a Neon project and copy its Postgres connection string.
+2. On Render: **New → Blueprint**, connect this repo. When prompted, paste the Neon string as `DATABASE_URL`; leave `OPENAI_API_KEY` empty for demo mode or set a real key for live missions.
+3. Done. Every push to `main` redeploys automatically **after** the GitHub Actions run is green (`autoDeployTrigger: checksPass`); migrations run on boot (`prisma migrate deploy`).
+
+Free-tier note: the service spins down when idle — the first visit after a quiet spell takes up to a minute to wake.
+
 ## Layout
 
 ```

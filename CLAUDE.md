@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-> **Status: Stretch 3 (HQ analytics) complete — `GET /api/missions/analytics` aggregates mission stats in Postgres (per-type outcomes, durations, gadget usage, flagged invoices) and HQ renders the «Analisi operativa» panel (stat tiles + bar lists) above the archive. Remaining stretch goal: deploy; see ROADMAP.md.** Update this line as phases complete.
+> **Status: Stretch 4 (deploy) wired — `render.yaml` declares one Render web service (Control serves HQ's built bundle same-origin via `ServeStaticModule`; Neon Postgres as `DATABASE_URL`; `prisma migrate deploy` on boot; auto-deploy only on green CI). Goes live once the repo is connected as a Render Blueprint — see README «Deploy». All roadmap phases and stretch goals are now built; see ROADMAP.md.** Update this line as phases complete.
 
 Double-O Agent is a 007-parody web app whose "secret agent" is an AI agent running SMB-finance missions (invoice extraction, duplicate hunting, reconciliation), streamed live to a spy-noir dashboard. The full what-and-why, stack rationale, and build phases live in [ROADMAP.md](./ROADMAP.md) — read it before proposing structural changes.
 
