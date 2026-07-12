@@ -8,6 +8,8 @@ import {
   MissionRunSpec,
 } from '../agent/agent-loop.service';
 
+const OWNER = 'owner-a';
+
 const SAMPLE_EXTRACTED = {
   number: 'FT-2026/0203',
   counterparty: 'Officine Meccaniche Franchi S.r.l.',
@@ -62,28 +64,30 @@ function build() {
 describe('MissionsService', () => {
   it('starts a mission and replays its full event stream', async () => {
     const { service } = build();
-    const { missionId, code } = await service.start('duplicate-hunt');
+    const { missionId, code } = await service.start('duplicate-hunt', OWNER);
     expect(code).toBe('007-001');
 
     const events = await firstValueFrom(
-      service.eventStream(missionId).pipe(toArray()),
+      service.eventStream(missionId, OWNER).pipe(toArray()),
     );
     expect(events.map((e) => e.type)).toEqual(['briefing', 'debrief']);
     expect(events.map((e) => e.seq)).toEqual([0, 1]);
     expect(events.every((e) => e.missionId === missionId)).toBe(true);
   });
 
-  it('persists the mission, every event, and the final outcome', async () => {
+  it('persists the mission with its owner, every event, and the outcome', async () => {
     const { service, repo } = build();
-    const { missionId, code } = await service.start('duplicate-hunt');
+    const { missionId, code } = await service.start('duplicate-hunt', OWNER);
 
     expect(repo.create).toHaveBeenCalledWith({
       id: missionId,
+      ownerId: OWNER,
       code,
       type: 'duplicate-hunt',
     });
+    expect(repo.nextCodeNumber).toHaveBeenCalledWith(OWNER);
 
-    await firstValueFrom(service.eventStream(missionId).pipe(toArray()));
+    await firstValueFrom(service.eventStream(missionId, OWNER).pipe(toArray()));
     expect(repo.appendEvent).toHaveBeenCalledTimes(2);
     expect(repo.finish).toHaveBeenCalledWith(missionId, {
       status: 'completed',
@@ -94,19 +98,20 @@ describe('MissionsService', () => {
 
   it('starts an extraction mission and persists the recorded invoice', async () => {
     const { service, repo } = build();
-    const { missionId } = await service.startExtraction({
-      filename: 'fattura.pdf',
-      text: 'Fattura n. FT-2026/0203 …',
-    });
+    const { missionId } = await service.startExtraction(
+      { filename: 'fattura.pdf', text: 'Fattura n. FT-2026/0203 …' },
+      OWNER,
+    );
 
     expect(repo.create).toHaveBeenCalledWith({
       id: missionId,
+      ownerId: OWNER,
       code: '007-001',
       type: 'extraction',
     });
 
     const events = await firstValueFrom(
-      service.eventStream(missionId).pipe(toArray()),
+      service.eventStream(missionId, OWNER).pipe(toArray()),
     );
     expect(events.map((e) => e.type)).toEqual(['briefing', 'debrief']);
     expect(repo.finish).toHaveBeenCalledWith(missionId, {
@@ -115,6 +120,35 @@ describe('MissionsService', () => {
       flagged: [],
       extracted: SAMPLE_EXTRACTED,
     });
+  });
+
+  it('scopes a live stream to its owner — another session gets NotFound', async () => {
+    const { service } = build();
+    const { missionId } = await service.start('duplicate-hunt', OWNER);
+
+    expect(() => service.eventStream(missionId, 'someone-else')).toThrow(
+      NotFoundException,
+    );
+    const events = await firstValueFrom(
+      service.eventStream(missionId, OWNER).pipe(toArray()),
+    );
+    expect(events.map((e) => e.type)).toEqual(['briefing', 'debrief']);
+  });
+
+  it('passes the owner through to history and analytics reads', async () => {
+    const { service, repo } = build();
+    await service.history(OWNER);
+    expect(repo.list).toHaveBeenCalledWith(OWNER);
+    await service.analytics(OWNER);
+    expect(repo.analytics).toHaveBeenCalledWith(OWNER);
+  });
+
+  it('checks ownership before returning stored events', async () => {
+    const { service, repo } = build();
+    repo.exists.mockResolvedValue(true);
+    await service.storedEvents('m1', OWNER);
+    expect(repo.exists).toHaveBeenCalledWith('m1', OWNER);
+    expect(repo.getEvents).toHaveBeenCalledWith('m1');
   });
 
   it('enriches history summaries with the mission title', async () => {
@@ -127,7 +161,7 @@ describe('MissionsService', () => {
         status: 'completed',
       },
     ]);
-    const history = await service.history();
+    const history = await service.history(OWNER);
     expect(history[0].title).toBe('Caccia ai doppioni');
   });
 
@@ -149,7 +183,7 @@ describe('MissionsService', () => {
       flaggedInvoices: 7,
     });
 
-    const stats = await service.analytics();
+    const stats = await service.analytics(OWNER);
     expect(stats).toEqual({
       totalMissions: 8,
       completed: 6,
@@ -184,7 +218,7 @@ describe('MissionsService', () => {
 
   it('returns zeroed analytics with no rates when the archive is empty', async () => {
     const { service } = build();
-    const stats = await service.analytics();
+    const stats = await service.analytics(OWNER);
     expect(stats).toEqual({
       totalMissions: 0,
       completed: 0,
@@ -200,8 +234,8 @@ describe('MissionsService', () => {
 
   it('throws NotFound for unknown live streams and stored events', async () => {
     const { service } = build();
-    expect(() => service.eventStream('nope')).toThrow(NotFoundException);
-    await expect(service.storedEvents('nope')).rejects.toThrow(
+    expect(() => service.eventStream('nope', OWNER)).toThrow(NotFoundException);
+    await expect(service.storedEvents('nope', OWNER)).rejects.toThrow(
       NotFoundException,
     );
   });

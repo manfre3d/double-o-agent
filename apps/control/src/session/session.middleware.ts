@@ -29,9 +29,8 @@ export class SessionMiddleware implements NestMiddleware {
   }
 
   use(req: Request, res: Response, next: NextFunction): void {
-    const current = (req.signedCookies as Record<string, unknown> | undefined)?.[
-      this.cookieName
-    ];
+    const cookies = req.signedCookies as Record<string, unknown> | undefined;
+    const current = cookies?.[this.cookieName];
     let ownerId =
       typeof current === 'string' && current.length >= 32 ? current : undefined;
 
