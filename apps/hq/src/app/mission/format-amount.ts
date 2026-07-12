@@ -6,6 +6,8 @@ const AMOUNT_FORMAT = new Intl.NumberFormat('it-IT', {
 });
 
 /** '1.842,20 EUR' — Italian-style formatting for lore-facing amounts. */
-export function formatInvoiceAmount(invoice: ExtractedInvoiceDto): string {
+export function formatInvoiceAmount(
+  invoice: Pick<ExtractedInvoiceDto, 'amount' | 'currency'>,
+): string {
   return `${AMOUNT_FORMAT.format(invoice.amount)} ${invoice.currency}`;
 }

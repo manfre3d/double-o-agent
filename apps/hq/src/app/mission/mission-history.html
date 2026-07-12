@@ -1,10 +1,13 @@
 <h2 class="archive-title">Archivio missioni</h2>
 
 @if (missions.error()) {
-  <p class="archive-note archive-note--down">Archivio non disponibile.</p>
+  <p class="error-frame archive-error">Archivio non disponibile.</p>
 } @else if (missions.value(); as list) {
   @if (!list.length) {
-    <p class="archive-note">Nessuna missione in archivio.</p>
+    <div class="empty-stamp">
+      <span class="empty-stamp-mark">Archivio vuoto</span>
+      <p class="archive-note">Nessuna missione in archivio.</p>
+    </div>
   }
   <ul class="dossier-list">
     @for (m of list; track m.missionId) {
@@ -49,11 +52,13 @@
               <h3 class="dossier-heading">Trascrizione</h3>
               <app-mission-feed [events]="events" [instant]="true" />
             } @else if (openEvents.isLoading()) {
-              <p class="dossier-note">Recupero del dossier&hellip;</p>
+              <p class="dossier-note loading-cursor">Recupero del dossier</p>
             }
           </div>
         }
       </li>
     }
   </ul>
+} @else {
+  <p class="archive-note loading-cursor">Recupero dell&rsquo;archivio</p>
 }

@@ -11,9 +11,11 @@ import type {
   MissionTypeStatsDto,
 } from '@double-o/shared';
 import { MissionService } from './mission.service';
+import { StatValue } from './stat-value';
 
 @Component({
   selector: 'app-mission-analytics',
+  imports: [StatValue],
   templateUrl: './mission-analytics.html',
   styleUrl: './mission-analytics.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,11 +35,8 @@ export class MissionAnalytics {
     });
   }
 
-  protected successRate(report: MissionAnalyticsDto): string {
-    return report.successRate === undefined
-      ? '—'
-      : `${Math.round(report.successRate * 100)}%`;
-  }
+  protected readonly formatPercent = (n: number): string => `${Math.round(n)}%`;
+  protected readonly formatDuration = (ms: number): string => this.duration(ms);
 
   protected duration(ms?: number): string {
     if (ms === undefined) {

@@ -8,6 +8,7 @@ import {
 import { DatePipe } from '@angular/common';
 import { httpResource } from '@angular/common/http';
 import type { MissionEvent, MissionStatus, MissionSummaryDto } from '@double-o/shared';
+import { injectViewTransition } from '../view-transition';
 import { MissionService } from './mission.service';
 import { MissionFeed } from './mission-feed';
 import { formatInvoiceAmount } from './format-amount';
@@ -60,7 +61,11 @@ export class MissionHistory {
     return STAMP_LABELS[status];
   }
 
+  private readonly withViewTransition = injectViewTransition();
+
   protected toggle(missionId: string): void {
-    this.openId.update((current) => (current === missionId ? undefined : missionId));
+    this.withViewTransition(() => {
+      this.openId.update((current) => (current === missionId ? undefined : missionId));
+    });
   }
 }

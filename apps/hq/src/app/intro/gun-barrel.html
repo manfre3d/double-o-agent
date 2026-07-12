@@ -1,4 +1,39 @@
-<div class="barrel-screen" aria-hidden="true" (click)="skip()">
-  <div class="barrel-iris"></div>
+<div
+  class="barrel-screen"
+  [class.barrel-screen--open]="closing()"
+  aria-hidden="true"
+  (click)="skip()"
+>
+  @if (stage() === 'barrel') {
+    @if (mode() === 'webgl') {
+      <canvas #glCanvas class="barrel-canvas"></canvas>
+    } @else {
+      <span class="barrel-dot"></span>
+    }
+  } @else {
+    <div
+      class="barrel-stage"
+      [class.barrel-stage--from-barrel]="mode() === 'webgl'"
+      [class.barrel-stage--blood]="stage() === 'blood' || stage() === 'contract'"
+      [class.barrel-stage--contract]="stage() === 'contract'"
+    >
+      <div class="stage-circle">
+        <div class="stage-agent">
+          @if (stage() === 'circle') {
+            <div class="frame-window">
+              <app-agent-silhouette class="walk-strip" pose="walk" />
+            </div>
+          } @else {
+            <div class="frame-window">
+              <app-agent-silhouette class="turn-strip" pose="turn" />
+            </div>
+            <span class="stage-flash"></span>
+            <span class="stage-shot-pop"></span>
+          }
+        </div>
+        <div class="stage-blood"></div>
+      </div>
+    </div>
+  }
   <p class="barrel-hint">Click to skip</p>
 </div>

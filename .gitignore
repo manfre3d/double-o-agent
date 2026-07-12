@@ -9,3 +9,9 @@ coverage/
 
 # Prisma generated client (rebuilt on npm install)
 apps/control/src/generated/
+
+# Local reference sheet for generating silhouette stills (not project source)
+image-prompts.md
+
+# Personal Claude Code overrides
+.claude/settings.local.json

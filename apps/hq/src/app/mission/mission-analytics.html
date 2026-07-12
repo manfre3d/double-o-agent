@@ -1,27 +1,42 @@
 <h2 class="analytics-title">Analisi operativa</h2>
 
 @if (stats.error()) {
-  <p class="analytics-note analytics-note--down">Analisi non disponibile.</p>
+  <p class="error-frame analytics-error">Analisi non disponibile.</p>
 } @else if (stats.value(); as report) {
   @if (!report.totalMissions) {
-    <p class="analytics-note">Archivio vuoto: nessun dato da analizzare.</p>
+    <div class="empty-stamp">
+      <span class="empty-stamp-mark">Nessun dato</span>
+      <p class="analytics-note">Archivio vuoto: nessun dato da analizzare.</p>
+    </div>
   } @else {
     <dl class="stat-tiles">
       <div class="stat-tile">
         <dt class="stat-tile-label">Missioni totali</dt>
-        <dd class="stat-tile-value">{{ report.totalMissions }}</dd>
+        <dd class="stat-tile-value"><app-stat-value [value]="report.totalMissions" /></dd>
       </div>
       <div class="stat-tile">
         <dt class="stat-tile-label">Tasso di successo</dt>
-        <dd class="stat-tile-value stat-tile-value--gold">{{ successRate(report) }}</dd>
+        <dd class="stat-tile-value stat-tile-value--gold">
+          @if (report.successRate !== undefined) {
+            <app-stat-value [value]="report.successRate * 100" [format]="formatPercent" />
+          } @else {
+            &mdash;
+          }
+        </dd>
       </div>
       <div class="stat-tile">
         <dt class="stat-tile-label">Durata media</dt>
-        <dd class="stat-tile-value">{{ duration(report.avgDurationMs) }}</dd>
+        <dd class="stat-tile-value">
+          @if (report.avgDurationMs !== undefined) {
+            <app-stat-value [value]="report.avgDurationMs" [format]="formatDuration" />
+          } @else {
+            &mdash;
+          }
+        </dd>
       </div>
       <div class="stat-tile">
         <dt class="stat-tile-label">Fatture segnalate</dt>
-        <dd class="stat-tile-value">{{ report.flaggedInvoices }}</dd>
+        <dd class="stat-tile-value"><app-stat-value [value]="report.flaggedInvoices" /></dd>
       </div>
     </dl>
 
@@ -30,7 +45,7 @@
         <h3 class="chart-title">Missioni per tipo</h3>
         <ul class="bar-list">
           @for (t of report.byType; track t.type) {
-            <li class="bar-row">
+            <li class="bar-row" [style.--bar-index]="$index">
               <div class="bar-head">
                 <span class="bar-label">{{ t.title }}</span>
                 <span class="bar-count">{{ t.total }}</span>
@@ -73,7 +88,7 @@
         @if (report.gadgets.length) {
           <ul class="bar-list">
             @for (g of report.gadgets; track g.gadget) {
-              <li class="bar-row">
+              <li class="bar-row" [style.--bar-index]="$index">
                 <div class="bar-head">
                   <span class="bar-label bar-label--code">{{ g.gadget }}</span>
                   <span class="bar-count">
@@ -102,5 +117,5 @@
     </div>
   }
 } @else {
-  <p class="analytics-note">Elaborazione dei dati&hellip;</p>
+  <p class="analytics-note loading-cursor">Elaborazione dei dati</p>
 }

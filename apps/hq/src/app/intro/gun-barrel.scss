@@ -1,7 +1,22 @@
-// Timeline (total 2.7s, mirrored by INTRO_DURATION_MS in gun-barrel.ts):
-// 0–1.4s  barrel sweeps in from the left, stepped like film frames
-// 1.4–1.9s hold on center
-// 1.9–2.7s the iris opens: circle blows out, screen fades to reveal HQ
+@use '../../styles/mixins';
+
+// The classic gun-barrel sequence, staged by gun-barrel.ts:
+// barrel beat — WebGL fly-through braking onto the muzzle disc at iris
+//               size, or the CSS dot tracking across the black screen
+//               (film-stepped);
+// circle      — the rifled iris (grown from the dot, or taken over from
+//               the barrel in place) and the agent walks in through it on
+//               an eight-frame stepped film-strip walk cycle, timed to
+//               hand off on the upright passing frame;
+// aim         — the finale strip: he freezes out of the stride (the stop
+//               reuses the walk's passing pose, no pistol shown), then the
+//               whip — draw-and-turn in one frame, square to the camera,
+//               the shot (muzzle flash at 880ms) — and it stops on the
+//               shot, held into the blood stage;
+// blood       — the wash descends inside the iris behind a lobed liquid
+//               edge; the iris sways as it floods;
+// contract    — the iris staggers, drops away to a dot; --open fades the
+//               overlay.
 
 .barrel-screen {
   position: fixed;
@@ -11,28 +26,201 @@
   place-items: center;
   background: var(--noir-black);
   cursor: pointer;
-  animation: screen-open 0.7s var(--ease-out) 2s both;
+
+  @include mixins.scanlines;
+
+  &--open {
+    animation: screen-open 0.4s var(--ease-out) both;
+  }
 }
 
-.barrel-iris {
-  width: min(38vmin, 340px);
+.barrel-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+// The dot hops across in discrete positions, as in the film titles.
+.barrel-dot {
+  width: clamp(16px, 2.2vmin, 20px);
   aspect-ratio: 1;
   border-radius: 50%;
+  background: var(--dossier-paper);
+  animation: dot-track 1.3s steps(7) both;
+}
+
+.barrel-stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+// The through-the-barrel view: rifling rings at the rim, paper within.
+.stage-circle {
+  position: relative;
+  width: min(46vmin, 400px);
+  aspect-ratio: 1;
+  overflow: hidden;
   border: 2px solid var(--gold-dim);
-  background: repeating-radial-gradient(
-    circle at 50% 50%,
-    var(--dossier-paper) 0 9%,
-    var(--dossier-paper-dark) 9% 13%
-  );
+  border-radius: 50%;
+  // border-radius + overflow alone fail to clip transform-animated children
+  // (the blood wash) in WebKit/older Chromium; the clip-path is the reliable
+  // circle clip and isolation keeps the children in this stacking context.
+  clip-path: circle(50%);
+  isolation: isolate;
+  background:
+    radial-gradient(circle, var(--dossier-paper) 0 66%, transparent 66%),
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      var(--dossier-paper) 0 3.5%,
+      var(--dossier-paper-dark) 3.5% 6.5%
+    );
   box-shadow: var(--shadow-md);
   animation:
-    barrel-sweep 1.4s steps(9, end) both,
-    barrel-fire 0.8s ease-in 1.9s both;
+    circle-grow 650ms var(--ease-out) both,
+    circle-track 2600ms var(--ease-out) both;
+
+  // Rifling grooves that slowly rotate while the agent walks, masked to the
+  // rim so the view stays clear. The pan + spin are the barrel tracking him.
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -10%;
+    background: repeating-conic-gradient(
+      var(--dossier-paper-dark) 0deg 4deg,
+      transparent 4deg 12deg
+    );
+    mask-image: radial-gradient(circle, transparent 0 58%, black 72%);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    &::before {
+      animation: rifling-spin 9s linear infinite;
+    }
+  }
+}
+
+.barrel-stage--from-barrel .stage-circle {
+  // The WebGL ride brakes to a stop with the muzzle disc already at this
+  // exact size and position — any motion here would break the handoff.
+  animation: none;
+}
+
+// The iris sways as the blood settles — the aperture losing its grip.
+// The curve drifts out fast and settles asymmetrically, like a mass on a
+// worn pivot rather than a symmetric ease.
+.barrel-stage--blood .stage-circle {
+  animation: iris-sway 480ms linear(0, 0.38 22%, 0.72 48%, 0.92 74%, 1) 620ms;
+}
+
+// A mechanical give: a first slip, a brief catch, then the full drop.
+.barrel-stage--contract .stage-circle {
+  animation: iris-contract 550ms linear(0, 0.09 18%, 0.14 32%, 0.38 58%, 0.74 82%, 1) both;
+}
+
+// Near-constant walking speed with a short settle — an eased curve would
+// make the feet slide against the stepped stride.
+$ease-walk: linear(0, 0.28 30%, 0.55 56%, 0.79 78%, 0.94 91%, 1);
+
+.stage-agent {
+  position: absolute;
+  top: 14%;
+  bottom: 10%;
+  left: 31%;
+  width: 38%;
+  color: var(--ink);
+  // 1760ms = two full 880ms gait cycles, so the entrance ends on a stride.
+  animation: walk-in 1760ms $ease-walk 250ms both;
+}
+
+// The film gate: one strip of frames steps past an overflow window, driven
+// by a single animation — frames can never desync or blank between swaps.
+.frame-window {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.frame-window app-agent-silhouette {
+  position: absolute;
+  inset: 0 auto 0 0;
+}
+
+// Width is frame count × window width — keep in sync with the strip SVGs.
+.walk-strip {
+  width: 800%;
+  animation: walk-strip 880ms steps(8, jump-end) infinite;
+}
+
+// The finale: steps the stop → whip-turn → face → fire, with the holds
+// written into the keyframes; fill both stops it on the shot and parks
+// that frame through blood/contract, as the film does. 1300ms = AIM_MS in
+// gun-barrel.ts.
+.turn-strip {
+  width: 400%;
+  animation: turn-strip 1300ms linear both;
+}
+
+// Muzzle flash centered on the pistol muzzle, fired on the shot frame
+// (880ms — keep in sync with the turn-strip keyframes).
+.stage-flash {
+  position: absolute;
+  left: 23%;
+  top: 20.5%;
+  width: 46%;
+  aspect-ratio: 1;
+  background: radial-gradient(
+    circle,
+    var(--dossier-paper) 0 22%,
+    var(--gold) 40%,
+    transparent 65%
+  );
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  opacity: 0;
+  animation: muzzle-flash 140ms linear 880ms both;
+}
+
+// One frame of overexposure across the whole iris as the shot lands — the
+// projector gate catching the blast. Mounted with the finale strip so it
+// runs on the same 880ms clock; the circle's clip-path contains it.
+.stage-shot-pop {
+  position: absolute;
+  inset: -20% -90%;
+  background: var(--dossier-paper);
+  opacity: 0;
+  animation: shot-pop 130ms linear 880ms both;
+}
+
+// Parked above the iris, then translated down so the lobed bottom edge
+// (ellipses straddling the 92% line) sweeps through as a viscous curtain
+// and ends below the clip — the circle floods fully red. Translate, not
+// scale: scaling would stretch the edge flat.
+.stage-blood {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 118%;
+  translate: 0 -106%;
+  background:
+    radial-gradient(18% 9% at 10% 92%, var(--blood-red) 98%, transparent),
+    radial-gradient(22% 7% at 30% 92%, var(--blood-red) 98%, transparent),
+    radial-gradient(16% 11% at 50% 92%, var(--blood-red) 98%, transparent),
+    radial-gradient(24% 8% at 71% 92%, var(--blood-red) 98%, transparent),
+    radial-gradient(17% 10% at 91% 92%, var(--blood-red) 98%, transparent),
+    linear-gradient(var(--blood-red), var(--blood-red)) top / 100% 92% no-repeat;
+}
+
+// Viscous, not ballistic: slow creep over the rim, the main flood, then a
+// settle as the last of it comes down.
+.barrel-stage--blood .stage-blood {
+  animation: blood-wash 750ms linear(0, 0.06 14%, 0.22 34%, 0.56 56%, 0.85 76%, 0.97 90%, 1) both;
 }
 
 .barrel-hint {
   position: absolute;
   bottom: var(--space-4);
+  z-index: var(--z-stamp);
   margin: 0;
   font-family: var(--font-mono);
   font-size: 0.7rem;
@@ -42,20 +230,136 @@
   animation: hint-in 0.4s ease 1s both;
 }
 
-@keyframes barrel-sweep {
+// Ends where the barrel starts its pan (circle-track), so the last hop
+// becomes the iris.
+@keyframes dot-track {
   from {
-    transform: translateX(-75vw);
+    translate: -46vw 0;
   }
 
   to {
-    transform: translateX(0);
+    translate: -12vw 0;
   }
 }
 
-@keyframes barrel-fire {
+@keyframes circle-grow {
+  from {
+    scale: 0.05;
+  }
+}
+
+@keyframes circle-track {
+  from {
+    translate: -12vw 0;
+  }
+}
+
+@keyframes rifling-spin {
   to {
-    transform: scale(12);
+    rotate: 1turn;
+  }
+}
+
+@keyframes walk-in {
+  from {
+    translate: 190% 0;
+  }
+}
+
+// The strip is N window-widths wide; stepping translate toward -100% shows
+// each frame in turn (the -100% endpoint itself lasts zero time).
+@keyframes walk-strip {
+  from {
+    translate: 0;
+  }
+
+  to {
+    translate: -100%;
+  }
+}
+
+// Four cells, holds written as paired stops (of 1300ms). The pacing is
+// stillness, then the whip: he stands gunless to 620ms, then draw-and-turn
+// and the squared-up frame snap by at 130ms each, and the shot lands at
+// 880ms (the flash fires there) — one explosive action, out of nowhere.
+// It stops on the shot: the braced fire pose holds from here on, and the
+// blood descends over it.
+@keyframes turn-strip {
+  0%,
+  47.6% {
+    translate: 0;
+  }
+
+  47.7%,
+  57.6% {
+    translate: -25%;
+  }
+
+  57.7%,
+  67.6% {
+    translate: -50%;
+  }
+
+  67.7%,
+  100% {
+    translate: -75%;
+  }
+}
+
+@keyframes muzzle-flash {
+  0% {
     opacity: 0;
+  }
+
+  35% {
+    opacity: 1;
+    scale: 1.15;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes shot-pop {
+  0%,
+  100% {
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 0.28;
+  }
+}
+
+@keyframes blood-wash {
+  to {
+    translate: 0 0;
+  }
+}
+
+@keyframes iris-sway {
+  30% {
+    translate: -1.1vw 0.5vh;
+    rotate: -1.4deg;
+  }
+
+  70% {
+    translate: 0.8vw 0.9vh;
+    rotate: 1deg;
+  }
+}
+
+@keyframes iris-contract {
+  30% {
+    translate: -0.8vw 3vh;
+    rotate: -1.6deg;
+  }
+
+  to {
+    translate: 1.4vw 15vh;
+    scale: 0.04;
+    rotate: 2deg;
   }
 }
 

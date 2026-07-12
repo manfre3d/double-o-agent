@@ -1,0 +1,108 @@
+@if (call(); as call) {
+  <p class="transmission-line">
+    <span class="transmission-gadget">&#9656; {{ call.gadget }}</span>
+  </p>
+  @if (params().length) {
+    <dl class="transmission-params">
+      @for (param of params(); track param.key) {
+        <dt>{{ param.key }}</dt>
+        <dd><app-typewriter-text [text]="param.value" [instant]="instant()" /></dd>
+      }
+    </dl>
+  }
+}
+
+@if (result(); as result) {
+  @if (!result.ok) {
+    <p class="error-frame transmission-error">&#10007; {{ result.gadget }}: {{ result.error }}</p>
+  }
+}
+
+@if (text(); as text) {
+  <p class="transmission-text">{{ text }}</p>
+}
+
+@if (ledger(); as ledger) {
+  <table class="transmission-ledger">
+    <thead>
+      <tr>
+        <th>Numero</th>
+        <th>Fornitore</th>
+        <th>Importo</th>
+        <th>Data</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (invoice of ledger.rows; track $index) {
+        <tr>
+          <td>{{ invoice.number }}</td>
+          <td>{{ invoice.counterparty }}</td>
+          <td>{{ amount(invoice) }}</td>
+          <td>{{ invoice.issueDate | date: 'dd/MM/yyyy' }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+  @if (ledger.more) {
+    <p class="transmission-note">&hellip; e altre {{ ledger.more }} voci</p>
+  }
+}
+
+@if (comparison(); as comparison) {
+  <table class="transmission-ledger">
+    <thead>
+      <tr>
+        <th>Numero</th>
+        <th>Fornitore</th>
+        <th>Importo</th>
+        <th>Data</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (invoice of comparison.rows; track $index) {
+        <tr>
+          <td>{{ invoice.number }}</td>
+          <td>{{ invoice.counterparty }}</td>
+          <td>{{ amount(invoice) }}</td>
+          <td>{{ invoice.issueDate | date: 'dd/MM/yyyy' }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+  <p class="transmission-note">
+    @for (match of comparison.matches; track match.label) {
+      <span class="transmission-mark" [class.transmission-mark--fail]="!match.ok">
+        {{ match.label }} {{ match.ok ? '✓' : '✗' }}
+      </span>
+    }
+  </p>
+}
+
+@if (invoice(); as invoice) {
+  <dl class="transmission-record">
+    <dt>Fattura n.</dt>
+    <dd>{{ invoice.number }}</dd>
+    <dt>Fornitore</dt>
+    <dd>{{ invoice.counterparty }}</dd>
+    <dt>Importo</dt>
+    <dd>{{ amount(invoice) }}</dd>
+    <dt>Emessa il</dt>
+    <dd>{{ invoice.issueDate | date: 'dd/MM/yyyy' }}</dd>
+  </dl>
+}
+
+@if (entries(); as entries) {
+  <dl class="transmission-record">
+    @for (entry of entries; track entry.key) {
+      <dt>{{ entry.key }}</dt>
+      <dd>{{ entry.value }}</dd>
+    }
+  </dl>
+}
+
+@if (raw()) {
+  <details class="transmission-raw">
+    <summary>Dati grezzi</summary>
+    <pre>{{ result()?.result | json }}</pre>
+  </details>
+}

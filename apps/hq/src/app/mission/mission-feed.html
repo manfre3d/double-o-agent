@@ -17,17 +17,10 @@
             </p>
           }
           @case ('gadget_call') {
-            <p class="feed-line">
-              <span class="feed-gadget">&#9656; {{ event.gadget }}</span>
-              <code class="feed-params">{{ compact(event.params) }}</code>
-            </p>
+            <app-gadget-transmission [event]="event" [instant]="instant()" />
           }
           @case ('gadget_result') {
-            @if (event.ok) {
-              <pre class="feed-result">{{ event.result | json }}</pre>
-            } @else {
-              <p class="feed-line feed-line--error">&#10007; {{ event.gadget }}: {{ event.error }}</p>
-            }
+            <app-gadget-transmission [event]="event" [instant]="instant()" />
           }
           @case ('debrief') {
             <article class="debrief">
@@ -58,7 +51,7 @@
             </article>
           }
           @case ('error') {
-            <p class="feed-line feed-line--error">&#10007; {{ event.message }}</p>
+            <p class="feed-line error-frame feed-line--error">&#10007; {{ event.message }}</p>
           }
         }
       </div>

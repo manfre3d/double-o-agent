@@ -13,13 +13,10 @@
   margin: 0;
   font-family: var(--font-mono);
   color: var(--phosphor-dim);
+}
 
-  &--down {
-    display: inline-block;
-    padding: 0 var(--space-2);
-    background: var(--blood-red);
-    color: var(--dossier-paper);
-  }
+.archive-error {
+  display: inline-block;
 }
 
 .dossier-list {
@@ -40,6 +37,7 @@
   box-shadow: var(--shadow-sm);
 
   @include mixins.paper-grain;
+  @include mixins.scroll-reveal;
 
   &::before {
     content: '';
@@ -72,7 +70,7 @@
     translate: 0 -1px;
   }
 
-  @media (max-width: 720px) {
+  @media (max-width: mixins.$bp-compact) {
     padding-right: var(--space-4);
   }
 }
@@ -93,7 +91,7 @@
     color: var(--blood-red);
   }
 
-  @media (max-width: 720px) {
+  @media (max-width: mixins.$bp-compact) {
     position: static;
     margin-top: 0;
     align-self: flex-start;

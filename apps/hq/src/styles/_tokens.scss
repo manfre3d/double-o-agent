@@ -17,6 +17,7 @@
   --phosphor-dim: rgb(159 184 164 / 60%);
   --ink-faint: rgb(26 26 24 / 65%);
   --paper-faint: rgb(239 230 208 / 30%); // hairline ring on dark chart marks
+  --blood-red-dim: rgb(139 30 30 / 18%); // error-frame tint fill
 
   // Spacing
   --space-1: 0.25rem;
@@ -39,6 +40,7 @@
   // Motion
   --transition-fast: 150ms ease;
   --transition-slow: 400ms var(--ease-out);
+  --transition-reveal: 600ms var(--ease-out); // redaction wipe
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
 
   // Z scale: 0 flow, 1 overlays inside a panel, 10 stamps, 200 intro

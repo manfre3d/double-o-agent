@@ -26,6 +26,11 @@
   & + & {
     border-top: 1px solid var(--noir-black);
   }
+
+  @media (max-width: mixins.$bp-narrow) {
+    grid-template-columns: 1fr;
+    gap: var(--space-1);
+  }
 }
 
 .feed-time {
@@ -39,9 +44,6 @@
 
   &--error {
     display: inline-block;
-    padding: 0 var(--space-2);
-    background: var(--blood-red);
-    color: var(--dossier-paper);
   }
 }
 
@@ -63,27 +65,6 @@
   color: var(--dossier-paper);
 }
 
-.feed-gadget {
-  color: var(--gold);
-  font-weight: 600;
-}
-
-.feed-params {
-  color: var(--phosphor-dim);
-  word-break: break-word;
-}
-
-.feed-result {
-  margin: 0;
-  padding: var(--space-2) var(--space-3);
-  border-left: 2px solid var(--gold-dim);
-  background: var(--noir-black);
-  color: var(--phosphor-dim);
-  font-size: 0.78rem;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
 .debrief {
   position: relative;
   margin: var(--space-2) 0;
@@ -94,6 +75,10 @@
   box-shadow: var(--shadow-md);
 
   @include mixins.paper-grain;
+
+  @media (max-width: mixins.$bp-narrow) {
+    padding: var(--space-3);
+  }
 }
 
 .debrief-stamp {
@@ -105,6 +90,11 @@
   z-index: var(--z-stamp);
   font-size: 0.8rem;
   animation-delay: 350ms;
+
+  @media (max-width: mixins.$bp-narrow) {
+    position: static;
+    margin-bottom: var(--space-2);
+  }
 }
 
 .debrief-title {
@@ -127,26 +117,11 @@
 
 // Typewritten field list for the recorded invoice (extraction missions).
 .debrief-record {
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  column-gap: var(--space-3);
-  row-gap: var(--space-1);
+  @include mixins.typed-record;
+
   margin: var(--space-3) 0 0;
   padding-top: var(--space-2);
   border-top: 1px dashed var(--ink-faint);
-
-  dt {
-    font-size: 0.7rem;
-    line-height: 1.9;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--ink-faint);
-  }
-
-  dd {
-    margin: 0;
-    font-weight: 600;
-  }
 }
 
 .debrief-flags {

@@ -1,5 +1,6 @@
 @use 'tokens';
 @use 'fonts';
+@use 'mixins';
 
 *,
 *::before,
@@ -22,6 +23,27 @@ body {
   color: var(--noir-black);
 }
 
+// Gold-dim thumb on noir track, app-wide. Chromium/Firefox honor the
+// standard property; the ::-webkit layer covers Safari, which lacks it.
+html {
+  scrollbar-color: var(--gold-dim) var(--noir-black);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 2px solid var(--noir-black);
+  border-radius: 5px;
+  background: var(--gold-dim);
+}
+
+::-webkit-scrollbar-track {
+  background: var(--noir-black);
+}
+
 :focus-visible {
   outline: 1px solid var(--gold);
   outline-offset: 2px;
@@ -31,9 +53,57 @@ body {
 // component stylesheets so view encapsulation never rewrites their names.
 @keyframes unredact {
   to {
-    background-color: transparent;
     color: var(--redact-color);
   }
+}
+
+@keyframes redaction-wipe {
+  to {
+    background-size: 0% 100%;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+// Paper-dissolve crossfade for View Transitions (dossier expand/collapse).
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 250ms;
+}
+
+// State-treatment utilities (see spy-theme: State treatments) — global so
+// every surface shares one implementation and component budgets stay lean.
+.error-frame {
+  @include mixins.error-frame;
+
+  margin: 0;
+}
+
+.loading-cursor {
+  @include mixins.loading-cursor;
+}
+
+.empty-stamp {
+  @include mixins.empty-stamp;
+
+  font-family: var(--font-mono);
+}
+
+.empty-stamp-mark {
+  @include mixins.stamp($color: var(--phosphor-dim), $angle: -6deg);
+
+  font-size: 0.8rem;
 }
 
 @keyframes stamp-in {

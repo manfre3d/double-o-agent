@@ -9,6 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { motionOk } from '../motion';
+import { SoundService } from '../sound.service';
 
 /** ~60 characters per second — teletype speed. */
 const CHAR_INTERVAL_MS = 16;
@@ -56,6 +57,7 @@ export class TypewriterText {
   protected readonly typing = computed(() => this.shown() < this.text().length);
 
   constructor() {
+    const sound = inject(SoundService);
     let interval: ReturnType<typeof setInterval> | undefined;
     const stop = () => clearInterval(interval);
     inject(DestroyRef).onDestroy(stop);
@@ -68,8 +70,11 @@ export class TypewriterText {
         return;
       }
       this.shown.set(0);
+      // The instant/reduced-motion paths never enter this interval, so
+      // archived transcripts stay silent by construction.
       interval = setInterval(() => {
         this.shown.update((n) => n + 1);
+        sound.typeTick();
         if (this.shown() >= length) {
           stop();
         }

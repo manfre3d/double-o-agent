@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { httpResource } from '@angular/common/http';
 import type { StatusReportDto } from '@double-o/shared';
+import { AgentSilhouette } from './agent-silhouette';
+import { SoundService } from './sound.service';
 import { MissionService } from './mission/mission.service';
 import { MissionAnalytics } from './mission/mission-analytics';
 import { MissionFeed } from './mission/mission-feed';
@@ -9,7 +11,7 @@ import { GunBarrel } from './intro/gun-barrel';
 
 @Component({
   selector: 'app-root',
-  imports: [MissionAnalytics, MissionFeed, MissionHistory, GunBarrel],
+  imports: [AgentSilhouette, MissionAnalytics, MissionFeed, MissionHistory, GunBarrel],
   templateUrl: './app.html',
   styleUrl: './app.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -17,6 +19,7 @@ import { GunBarrel } from './intro/gun-barrel';
 export class App {
   protected readonly controlStatus = httpResource<StatusReportDto>(() => '/api/status');
   protected readonly mission = inject(MissionService);
+  protected readonly sound = inject(SoundService);
   protected readonly introDone = signal(false);
 
   protected onDossierSelected(input: HTMLInputElement): void {

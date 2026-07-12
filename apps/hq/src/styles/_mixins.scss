@@ -1,6 +1,11 @@
 // Shared spy-noir pattern mixins — what each may do is governed by the
-// spy-theme skill. Keyframes they reference (unredact, stamp-in) are global
-// and live in styles.scss.
+// spy-theme skill. Keyframes they reference (unredact, redaction-wipe,
+// stamp-in, rise-in, blink) are global and live in styles.scss.
+
+// Layout breakpoints — media queries cannot read CSS custom properties,
+// so these live here as Sass values.
+$bp-compact: 720px;
+$bp-narrow: 480px;
 
 // Rubber stamp: rotated, double-ruled, worn at the edges. Stamps onto the
 // page via the global stamp-in keyframes.
@@ -48,14 +53,100 @@
 }
 
 // Redaction bar that declassifies: text starts as a solid ink bar, then the
-// bar drops after $delay (global unredact keyframes). $color is the revealed
-// text color. box-decoration-break gives one bar per wrapped line.
+// bar wipes away left→right after $delay. The bar is a background image
+// (not clip-path) so box-decoration-break clones it per wrapped line and
+// every line wipes in parallel; background-position pins the shrinking bar
+// to the right so the reveal runs in reading direction. $color is the
+// revealed text color.
 @mixin redacted($color: var(--ink), $delay: 500ms) {
   --redact-color: #{$color};
   padding: 0 0.3em;
-  background-color: var(--ink);
   color: transparent;
+  background-image: linear-gradient(var(--ink), var(--ink));
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-position: 100% 0;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
-  animation: unredact 1ms linear $delay both;
+  animation:
+    unredact 1ms linear $delay both,
+    redaction-wipe var(--transition-reveal) $delay both;
+}
+
+// "Transmission interrupted" — the one sanctioned error treatment.
+@mixin error-frame {
+  display: block;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--blood-red);
+  border-left-width: 3px;
+  border-radius: var(--radius-card);
+  background: var(--blood-red-dim);
+  color: var(--dossier-paper);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+// Trailing block cursor for in-progress states. Under reduced motion the
+// global squash leaves it as a steady cursor.
+@mixin loading-cursor {
+  &::after {
+    content: '▍';
+    margin-left: 0.15em;
+    animation: blink 0.9s steps(2, jump-none) infinite;
+  }
+}
+
+// Empty-state box: dashed hairline holding a muted stamp plus a note.
+// Empty is not an error — the stamp color stays phosphor/ink, never red.
+@mixin empty-stamp {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px dashed var(--paper-faint);
+  border-radius: var(--radius-card);
+  text-align: center;
+}
+
+// Typewritten field list (dt/dd grid) — recorded invoices, gadget records.
+// $label-color: --ink-faint on paper surfaces, --phosphor-dim on noir.
+@mixin typed-record($label-color: var(--ink-faint)) {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: var(--space-3);
+  row-gap: var(--space-1);
+  margin: 0;
+
+  dt {
+    font-size: 0.7rem;
+    line-height: 1.9;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: $label-color;
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 600;
+    word-break: break-word;
+  }
+}
+
+// Rise into view as the element scrolls in. Progressive enhancement only:
+// without animation-timeline support the element renders in its final state.
+// Order matters — the `animation` shorthand resets animation-timeline, so
+// the timeline must be declared after it. The explicit reduced-motion wrap
+// is load-bearing: the global squash shortens durations, which does nothing
+// to scroll-mapped progress.
+@mixin scroll-reveal($range: entry 0% entry 55%) {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      animation: rise-in linear both;
+      animation-timeline: view();
+      animation-range: #{$range};
+    }
+  }
 }

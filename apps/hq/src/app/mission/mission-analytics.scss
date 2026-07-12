@@ -1,3 +1,5 @@
+@use '../../styles/mixins';
+
 .analytics-title {
   margin: 0 0 var(--space-3);
   font-family: var(--font-display);
@@ -11,13 +13,10 @@
   margin: 0;
   font-family: var(--font-mono);
   color: var(--phosphor-dim);
+}
 
-  &--down {
-    display: inline-block;
-    padding: 0 var(--space-2);
-    background: var(--blood-red);
-    color: var(--dossier-paper);
-  }
+.analytics-error {
+  display: inline-block;
 }
 
 .stat-tiles {
@@ -25,6 +24,11 @@
   grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
   gap: var(--space-3);
   margin: 0 0 var(--space-4);
+
+  @media (max-width: mixins.$bp-narrow) {
+    grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+    gap: var(--space-2);
+  }
 }
 
 .stat-tile {
@@ -85,6 +89,11 @@
   align-items: baseline;
   gap: var(--space-3);
   margin-bottom: var(--space-1);
+
+  @media (max-width: mixins.$bp-narrow) {
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+  }
 }
 
 .bar-label {
@@ -115,10 +124,27 @@
 }
 
 // Segment widths are flex-grow ratios, so gaps never overflow the track.
+// Tracks grow from the left on entry, staggered per row; @for tracks rows by
+// type/gadget, so data refreshes reuse the nodes and never replay this.
 .bar-track {
   display: flex;
   gap: 2px;
   height: 10px;
+  transform-origin: left;
+  animation: bar-grow 500ms var(--ease-out) backwards;
+  animation-delay: calc(var(--bar-index, 0) * 70ms);
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar-track {
+    animation: none;
+  }
 }
 
 .bar-seg {
