@@ -43,7 +43,7 @@
                 <ul class="debrief-flags">
                   @for (flag of event.flagged; track flag.invoiceId) {
                     <li>
-                      <span class="debrief-flag-id">{{ flag.invoiceId }}</span> — {{ flag.reason }}
+                      <span class="debrief-flag-id">{{ flag.invoiceId }}</span>: {{ flag.reason }}
                     </li>
                   }
                 </ul>

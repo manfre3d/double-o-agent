@@ -58,9 +58,10 @@ describe('GadgetTransmission', () => {
         params: { invoiceIdA: 'inv-001', invoiceIdB: 'inv-007' },
       }),
     );
-    expect(el.querySelector('.transmission-gadget')?.textContent).toContain(
-      'compare_invoices',
-    );
+    const label = el.querySelector('.transmission-gadget');
+    // The visible label is the friendly translation; the raw id stays on hover.
+    expect(label?.textContent).toContain('Confronto tra due fatture');
+    expect(label?.getAttribute('title')).toBe('compare_invoices');
     expect(el.textContent).toContain('invoiceIdA');
     expect(el.textContent).toContain('inv-007');
     expect(el.querySelector('details')).toBeNull();

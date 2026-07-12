@@ -71,30 +71,41 @@
 
   <section class="mission" aria-live="polite">
     <h2 class="section-eyebrow">{{ language.t('liveMissionTitle') }}</h2>
+    <p class="mission-intro">{{ language.t('missionIntro') }}</p>
     <div class="mission-actions">
-      <button
-        type="button"
-        class="mission-launch"
-        (click)="mission.start()"
-        [disabled]="mission.running()"
-      >
-        {{ mission.running() ? language.t('missionRunning') : language.t('startMission') }}
-      </button>
-      <button
-        type="button"
-        class="mission-launch mission-launch--dossier"
-        (click)="dossierInput.click()"
-        [disabled]="mission.running()"
-      >
-        {{ language.t('submitDossier') }}
-      </button>
-      <input
-        #dossierInput
-        type="file"
-        accept="application/pdf"
-        hidden
-        (change)="onDossierSelected(dossierInput)"
-      />
+      <article class="mission-brief">
+        <p class="mission-brief__tag">{{ language.t('demoTag') }}</p>
+        <h3 class="mission-brief__title">{{ language.t('missionHuntTitle') }}</h3>
+        <p class="mission-brief__desc">{{ language.t('missionHuntDesc') }}</p>
+        <button
+          type="button"
+          class="mission-launch"
+          (click)="mission.start()"
+          [disabled]="mission.running()"
+        >
+          {{ mission.running() ? language.t('missionRunning') : language.t('startMission') }}
+        </button>
+      </article>
+      <article class="mission-brief">
+        <p class="mission-brief__tag">{{ language.t('demoTag') }}</p>
+        <h3 class="mission-brief__title">{{ language.t('missionDossierTitle') }}</h3>
+        <p class="mission-brief__desc">{{ language.t('missionDossierDesc') }}</p>
+        <button
+          type="button"
+          class="mission-launch mission-launch--dossier"
+          (click)="dossierInput.click()"
+          [disabled]="mission.running()"
+        >
+          {{ language.t('submitDossier') }}
+        </button>
+        <input
+          #dossierInput
+          type="file"
+          accept="application/pdf"
+          hidden
+          (change)="onDossierSelected(dossierInput)"
+        />
+      </article>
     </div>
     @if (mission.linkError(); as error) {
       <div class="error-frame">

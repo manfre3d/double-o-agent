@@ -26,6 +26,15 @@ const FIELD_LABEL_KEYS: Record<string, TranslationKey> = {
   issueDate: 'fieldDate',
 };
 
+/** Plain-language labels for gadget ids shown in the feed (raw id kept on hover). */
+const GADGET_LABEL_KEYS: Record<string, TranslationKey> = {
+  list_invoices: 'gadgetListInvoices',
+  compare_invoices: 'gadgetCompareInvoices',
+  flag_invoice: 'gadgetFlagInvoice',
+  read_document: 'gadgetReadDocument',
+  record_invoice: 'gadgetRecordInvoice',
+};
+
 interface ResultVm {
   text?: string;
   ledger?: { rows: InvoiceRecord[]; more: number };
@@ -123,4 +132,10 @@ export class GadgetTransmission {
   protected readonly invoice = computed(() => this.vm()?.invoice);
   protected readonly entries = computed(() => this.vm()?.entries);
   protected readonly raw = computed(() => this.vm()?.raw === true);
+
+  /** Plain-language label for a gadget id; the raw id stays available on hover. */
+  protected gadgetLabel(id: string): string {
+    const key = GADGET_LABEL_KEYS[id];
+    return key ? this.language.t(key) : id;
+  }
 }

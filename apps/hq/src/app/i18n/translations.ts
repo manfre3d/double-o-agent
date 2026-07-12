@@ -2,11 +2,12 @@ export type Lang = 'en' | 'it';
 
 const en = {
   // Header / masthead chrome
-  subtitle: 'HQ — live link to Control',
+  subtitle: 'HQ, live link to Control',
   tagline:
-    'The secret agent here is an AI. It runs small-business finance missions ' +
-    '— extracting invoices, hunting duplicates, reconciling records — and ' +
-    'streams every move to this dashboard, live.',
+    "Everyone's building AI agents right now. Ours is the secret kind: " +
+    'Double-O Agent is a demo where an AI runs the least glamorous missions ' +
+    'in small-business finance, hunting duplicate invoices and reading the ' +
+    'details off invoice PDFs, streaming every move to this dashboard as it works.',
   audioOn: 'Audio: on',
   audioOff: 'Audio: off',
   langLabelPrefix: 'Language',
@@ -19,6 +20,18 @@ const en = {
 
   // Live mission section
   liveMissionTitle: 'Live mission',
+  missionIntro:
+    'Two demo missions. Launch one and watch the agent work in real time, ' +
+    'one step at a time.',
+  demoTag: 'Demo',
+  missionHuntTitle: 'Hunt for duplicate invoices',
+  missionHuntDesc:
+    'The agent scans a ready-made set of 10 sample invoices and flags the ones ' +
+    'entered twice. Nothing to set up. Just press start.',
+  missionDossierTitle: 'Read your own invoice',
+  missionDossierDesc:
+    'Upload an invoice PDF. The agent reads it and pulls out the supplier, ' +
+    'number, amount, and date.',
   startMission: 'Start mission',
   missionRunning: 'Mission running…',
   submitDossier: 'Submit dossier (PDF)',
@@ -31,7 +44,7 @@ const en = {
 
   // Footer
   footer:
-    'Double-O Agent is satire — a 007 parody where the spy is a language ' +
+    'Double-O Agent is satire, a 007 parody where the spy is a language ' +
     'model and the villain is an overdue invoice. Not affiliated with, or ' +
     'endorsed by, the James Bond franchise or its rights holders.',
 
@@ -55,6 +68,13 @@ const en = {
   fieldDate: 'Date',
   moreEntries: '… and {n} more entries',
   rawData: 'Raw data',
+
+  // Gadget step labels
+  gadgetListInvoices: 'Listing the invoices',
+  gadgetCompareInvoices: 'Comparing two invoices',
+  gadgetFlagInvoice: 'Flagging a duplicate',
+  gadgetReadDocument: 'Reading the document',
+  gadgetRecordInvoice: 'Recording the invoice',
 
   // Analytics
   analyticsTitle: 'Operational analytics',
@@ -94,11 +114,12 @@ const en = {
 export type TranslationKey = keyof typeof en;
 
 const it: Record<TranslationKey, string> = {
-  subtitle: 'HQ — collegamento in diretta con Control',
+  subtitle: 'HQ, collegamento in diretta con Control',
   tagline:
-    "L'agente segreto qui è un'intelligenza artificiale. Conduce missioni di " +
-    'finanza per piccole imprese — estrazione fatture, caccia ai doppioni, ' +
-    'riconciliazione — e trasmette ogni mossa a questo cruscotto, in diretta.',
+    'Tutti parlano di agenti IA. Il nostro è di quelli segreti: Double-O Agent ' +
+    "è una demo in cui un'IA svolge le missioni meno glamour della contabilità " +
+    'delle piccole imprese, dà la caccia alle fatture doppie e legge i dati ' +
+    'dalle fatture in PDF, trasmettendo ogni mossa a questo cruscotto mentre lavora.',
   audioOn: 'Audio: attivo',
   audioOff: 'Audio: silenziato',
   langLabelPrefix: 'Lingua',
@@ -109,6 +130,18 @@ const it: Record<TranslationKey, string> = {
   controlStatusLoading: 'In contatto con Control',
 
   liveMissionTitle: 'Missione in diretta',
+  missionIntro:
+    "Due missioni dimostrative. Avviane una e osserva l'agente lavorare in " +
+    'tempo reale, un passo alla volta.',
+  demoTag: 'Demo',
+  missionHuntTitle: 'Caccia alle fatture doppie',
+  missionHuntDesc:
+    "L'agente esamina una serie pronta di 10 fatture di esempio e segnala " +
+    'quelle inserite due volte. Niente da preparare: basta premere avvia.',
+  missionDossierTitle: 'Leggi la tua fattura',
+  missionDossierDesc:
+    "Carica una fattura in PDF. L'agente la legge ed estrae fornitore, " +
+    'numero, importo e data.',
   startMission: 'Avvia missione',
   missionRunning: 'Missione in corso…',
   submitDossier: 'Consegna dossier (PDF)',
@@ -119,7 +152,7 @@ const it: Record<TranslationKey, string> = {
   errLinkInterrupted: 'Collegamento con Control interrotto.',
 
   footer:
-    'Double-O Agent è satira — una parodia di 007 in cui la spia è un ' +
+    'Double-O Agent è satira, una parodia di 007 in cui la spia è un ' +
     'modello linguistico e il cattivo è una fattura scaduta. Non affiliato ' +
     'con, né approvato da, il franchise di James Bond o dai suoi aventi diritto.',
 
@@ -140,6 +173,12 @@ const it: Record<TranslationKey, string> = {
   fieldDate: 'Data',
   moreEntries: '… e altre {n} voci',
   rawData: 'Dati grezzi',
+
+  gadgetListInvoices: 'Elenco delle fatture',
+  gadgetCompareInvoices: 'Confronto tra due fatture',
+  gadgetFlagInvoice: 'Segnalazione di un doppione',
+  gadgetReadDocument: 'Lettura del documento',
+  gadgetRecordInvoice: 'Registrazione della fattura',
 
   analyticsTitle: 'Analisi operativa',
   analyticsError: 'Analisi non disponibile.',

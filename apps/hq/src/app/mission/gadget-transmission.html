@@ -1,6 +1,6 @@
 @if (call(); as call) {
   <p class="transmission-line">
-    <span class="transmission-gadget">&#9656; {{ call.gadget }}</span>
+    <span class="transmission-gadget" [title]="call.gadget">&#9656; {{ gadgetLabel(call.gadget) }}</span>
   </p>
   @if (params().length) {
     <dl class="transmission-params">
@@ -14,7 +14,7 @@
 
 @if (result(); as result) {
   @if (!result.ok) {
-    <p class="error-frame transmission-error">&#10007; {{ result.gadget }}: {{ result.error }}</p>
+    <p class="error-frame transmission-error" [title]="result.gadget">&#10007; {{ gadgetLabel(result.gadget) }}: {{ result.error }}</p>
   }
 }
 
