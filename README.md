@@ -2,6 +2,8 @@
 
 A 007-parody web app whose "secret agent" is an AI agent running small-business finance missions — invoice extraction, duplicate hunting — streamed live, event by event, to a spy-noir dashboard. **HQ** (Angular) is where missions are launched and watched; **Control** (NestJS) runs the agent loop, executes the gadgets (tools), and streams the mission feed over SSE; Postgres keeps the dossier archive.
 
+> **Satire disclaimer** — Double-O Agent is a parody. It is not affiliated with, or endorsed by, the James Bond franchise or its rights holders. The tuxedoed "agent" is a language model doing bookkeeping; the villain is an overdue invoice. The finance work, however, is real.
+
 ## Prerequisites
 
 - **Node 24+** (npm workspaces do the monorepo wiring; CI runs on Node 24)

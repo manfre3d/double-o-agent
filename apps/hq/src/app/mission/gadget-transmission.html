@@ -23,52 +23,56 @@
 }
 
 @if (ledger(); as ledger) {
-  <table class="transmission-ledger">
-    <thead>
-      <tr>
-        <th>Numero</th>
-        <th>Fornitore</th>
-        <th>Importo</th>
-        <th>Data</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (invoice of ledger.rows; track $index) {
+  <div class="transmission-ledger-scroll">
+    <table class="transmission-ledger">
+      <thead>
         <tr>
-          <td>{{ invoice.number }}</td>
-          <td>{{ invoice.counterparty }}</td>
-          <td>{{ amount(invoice) }}</td>
-          <td>{{ invoice.issueDate | date: 'dd/MM/yyyy' }}</td>
+          <th>Numero</th>
+          <th>Fornitore</th>
+          <th>Importo</th>
+          <th>Data</th>
         </tr>
-      }
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        @for (invoice of ledger.rows; track $index) {
+          <tr>
+            <td>{{ invoice.number }}</td>
+            <td>{{ invoice.counterparty }}</td>
+            <td>{{ amount(invoice) }}</td>
+            <td>{{ invoice.issueDate | date: 'dd/MM/yyyy' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
   @if (ledger.more) {
     <p class="transmission-note">&hellip; e altre {{ ledger.more }} voci</p>
   }
 }
 
 @if (comparison(); as comparison) {
-  <table class="transmission-ledger">
-    <thead>
-      <tr>
-        <th>Numero</th>
-        <th>Fornitore</th>
-        <th>Importo</th>
-        <th>Data</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (invoice of comparison.rows; track $index) {
+  <div class="transmission-ledger-scroll">
+    <table class="transmission-ledger">
+      <thead>
         <tr>
-          <td>{{ invoice.number }}</td>
-          <td>{{ invoice.counterparty }}</td>
-          <td>{{ amount(invoice) }}</td>
-          <td>{{ invoice.issueDate | date: 'dd/MM/yyyy' }}</td>
+          <th>Numero</th>
+          <th>Fornitore</th>
+          <th>Importo</th>
+          <th>Data</th>
         </tr>
-      }
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        @for (invoice of comparison.rows; track $index) {
+          <tr>
+            <td>{{ invoice.number }}</td>
+            <td>{{ invoice.counterparty }}</td>
+            <td>{{ amount(invoice) }}</td>
+            <td>{{ invoice.issueDate | date: 'dd/MM/yyyy' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
   <p class="transmission-note">
     @for (match of comparison.matches; track match.label) {
       <span class="transmission-mark" [class.transmission-mark--fail]="!match.ok">

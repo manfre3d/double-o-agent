@@ -2,9 +2,14 @@
   <app-gun-barrel (finished)="introDone.set(true)" />
 }
 
-<app-agent-silhouette class="hq-figure" pose="hero" aria-hidden="true" />
+<app-agent-silhouette
+  class="hq-figure"
+  [class.hq-figure--arrived]="introDone()"
+  pose="hero"
+  aria-hidden="true"
+/>
 
-<main class="hq">
+<main class="hq" [class.hq--arrived]="introDone()">
   <header class="hq-header">
     <div class="hq-hero">
       <svg class="hq-insignia" viewBox="0 0 96 96" aria-hidden="true">
@@ -28,6 +33,11 @@
     </svg>
       <h1 class="hq-title">Double-O Agent</h1>
       <p class="hq-subtitle">HQ &mdash; live link to Control</p>
+      <p class="hq-tagline">
+        The secret agent here is an AI. It runs small-business finance missions
+        &mdash; extracting invoices, hunting duplicates, reconciling records
+        &mdash; and streams every move to this dashboard, live.
+      </p>
     </div>
     <button
       type="button"
@@ -98,4 +108,12 @@
   <section class="history">
     <app-mission-history />
   </section>
+
+  <footer class="hq-footer">
+    <p class="hq-footer-line">
+      Double-O Agent is satire &mdash; a 007 parody where the spy is a language
+      model and the villain is an overdue invoice. Not affiliated with, or
+      endorsed by, the James Bond franchise or its rights holders.
+    </p>
+  </footer>
 </main>

@@ -64,6 +64,7 @@ The feed renders gadget traffic as intercepted transmissions, never raw JSON at 
 - **Expand/collapse** may use the View Transitions API (~250 ms paper-dissolve crossfade) when supported; otherwise the change is instant. No geometry morphs.
 - **Numeric count-ups** (analytics tiles) settle within ~700 ms and play on first render only — never replayed on data refresh.
 - **WebGL exception:** `three` is permitted for the gun-barrel intro ONLY — dynamically imported so it lives in its own lazy chunk, never the initial bundle. The CSS intro remains the mandatory fallback (no WebGL, reduced motion, or load failure). All in-dashboard motion stays CSS/native.
+- **Arrival beat:** when the intro overlay fades, HQ does not simply sit there fully formed — the letterhead assembles: sections rise in a short stagger (the global `rise-in`, ~90 ms apart), the header insignia stamps on once (straight, no rotation — `stamp-in` with `--stamp-angle: 0deg`), and the title declassifies via the redaction reveal. Plays once per page load, gated on the intro's `finished` signal; under reduced motion the intro self-skips and the page appears settled.
 - Respect `prefers-reduced-motion`: all motion collapses to instant state changes.
 
 ## Sound
@@ -76,7 +77,11 @@ The feed renders gadget traffic as intercepted transmissions, never raw JSON at 
 ## Chrome
 
 - **Scrollbars:** gold-dim thumb on noir track, app-wide (`scrollbar-color` plus the `::-webkit-scrollbar` layer for Safari).
-- **Header insignia:** a single hand-authored inline-SVG roundel in gold line-work (circles, tick marks, crosshair, "00" monogram). Static — it does not rotate or glint.
+- **Header insignia:** a single hand-authored inline-SVG roundel in gold line-work (circles, tick marks, crosshair, "00" monogram). Static — it does not rotate or glint (its one animation is the arrival stamp above).
+- **Page vignette:** the body carries a fixed `--noir-veil` radial falloff darkening the page edges — the barrel iris echoed on the page. Sanctioned noir-on-noir depth; it never dims panel content (background layer only). Implemented as a fixed `body::before` layer, never `background-attachment: fixed` (iOS Safari lacks it).
+- **Masthead tagline & footer colophon:** the header carries one plain-language sentence saying what the app actually does (chrome copy, English); the page ends on a quiet centered mono footer holding the satire disclaimer (parody, not affiliated with the Bond franchise). Both are chrome — the lore never replaces them.
+- **App icon / favicon:** the header insignia on a noir tile (`public/icon.svg`, gold `#c9a227` on `#0d0d0f` — raw values, tokens don't reach standalone assets), rasterized to `favicon.ico`, `icon-192/512.png`, `apple-touch-icon.png`, and a maskable variant wired via `manifest.webmanifest`. Regenerate all rasters from `icon.svg` if the insignia changes.
+- **Mobile:** the page never scrolls horizontally — wide data (ledger tables) pans inside its own `overflow-x: auto` container; feed grid cells carry `min-width: 0`. The masthead tightens tracking below the narrow breakpoint instead of wrapping.
 
 ## Lore & language (short form — full glossary in CLAUDE.md)
 

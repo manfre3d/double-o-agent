@@ -1,4 +1,4 @@
-<ol class="feed">
+<ol class="feed" #list>
   @for (event of events(); track event.seq) {
     <li class="feed-entry">
       <time class="feed-time" [attr.datetime]="event.at">{{ event.at | date: 'HH:mm:ss' }}</time>

@@ -29,6 +29,12 @@
   word-break: break-word;
 }
 
+// Ledgers wider than a phone screen pan inside their own window; the page
+// itself must never scroll sideways.
+.transmission-ledger-scroll {
+  overflow-x: auto;
+}
+
 .transmission-ledger {
   margin: 0;
   border-collapse: collapse;

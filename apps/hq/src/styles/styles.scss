@@ -11,11 +11,24 @@
 body {
   margin: 0;
   min-height: 100dvh;
-  background: radial-gradient(circle at 50% 25%, var(--noir-lift), var(--noir-black) 70%)
-    fixed var(--noir-black);
+  background: var(--noir-black);
   color: var(--dossier-paper);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
+}
+
+// The veil layer darkens the page edges like the barrel iris falloff.
+// A fixed pseudo-element, not background-attachment: fixed — iOS Safari
+// lacks the latter and would stretch the gradients over the whole document.
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 50% 15%, transparent 55%, var(--noir-veil)),
+    radial-gradient(circle at 50% 25%, var(--noir-lift), var(--noir-black) 70%);
 }
 
 ::selection {
@@ -25,7 +38,10 @@ body {
 
 // Gold-dim thumb on noir track, app-wide. Chromium/Firefox honor the
 // standard property; the ::-webkit layer covers Safari, which lacks it.
+// color-scheme keeps UA widgets (form controls, native scrollbars, the
+// <details> marker) dark — the app's one committed theme, not a toggle.
 html {
+  color-scheme: dark;
   scrollbar-color: var(--gold-dim) var(--noir-black);
 }
 

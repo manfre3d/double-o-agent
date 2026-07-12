@@ -9,11 +9,68 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
-  padding: var(--space-4) var(--space-4) var(--space-5);
+  // max() keeps content clear of notches/rounded corners under viewport-fit=cover.
+  padding: var(--space-4) max(var(--space-4), env(safe-area-inset-right))
+    var(--space-5) max(var(--space-4), env(safe-area-inset-left));
 
   @media (max-width: mixins.$bp-compact) {
     gap: var(--space-4);
-    padding: var(--space-3) var(--space-3) var(--space-4);
+    padding: var(--space-3) max(var(--space-3), env(safe-area-inset-right))
+      var(--space-4) max(var(--space-3), env(safe-area-inset-left));
+  }
+}
+
+// The arrival beat: the intro iris fades to noir, then the letterhead
+// assembles — sections rise in a short stagger, the insignia stamps on,
+// the title declassifies. The hidden state lives only on the pre-arrival
+// selector so rise-in's fill resolves to each section's natural style.
+// The staggered sections are exactly the shell's direct children.
+.hq:not(.hq--arrived) > * {
+  opacity: 0;
+}
+
+.hq--arrived .hq-header {
+  animation: rise-in 480ms var(--ease-out) both;
+}
+
+.hq--arrived .status-report {
+  animation: rise-in 480ms var(--ease-out) 90ms both;
+}
+
+.hq--arrived .mission {
+  animation: rise-in 480ms var(--ease-out) 180ms both;
+}
+
+.hq--arrived .analytics {
+  animation: rise-in 480ms var(--ease-out) 270ms both;
+}
+
+.hq--arrived .history {
+  animation: rise-in 480ms var(--ease-out) 360ms both;
+}
+
+.hq--arrived .hq-footer {
+  animation: rise-in 480ms var(--ease-out) 450ms both;
+}
+
+.hq--arrived .hq-insignia {
+  --stamp-angle: 0deg; // the roundel stamps straight onto the letterhead
+
+  animation: stamp-in 240ms var(--ease-out) 150ms both;
+}
+
+.hq--arrived .hq-title {
+  @include mixins.redacted($color: var(--dossier-paper), $delay: 350ms);
+
+  padding: 0; // keep the letterhead aligned; the ink bar reads as darkness on noir
+}
+
+@media (prefers-reduced-motion: reduce) {
+  // The title (a deeper descendant) keeps its (squashed) redaction reveal —
+  // animation: none would strand the fill mid-flight with transparent text.
+  .hq--arrived > *,
+  .hq--arrived .hq-insignia {
+    animation: none;
   }
 }
 
@@ -29,6 +86,9 @@
   width: clamp(16rem, 26vw, 30rem);
   color: var(--noir-black);
   pointer-events: none;
+  // Dissolves in from the noir once the intro hands over.
+  opacity: 0;
+  transition: opacity 1.2s var(--ease-out);
   // Hair-thin gold rim so the black cutout separates from the noir.
   filter: drop-shadow(0 0 2px var(--gold-dim));
   mask-image: linear-gradient(black 72%, transparent 96%);
@@ -61,6 +121,10 @@
   }
 }
 
+.hq-figure--arrived {
+  opacity: 1;
+}
+
 @keyframes figure-drift {
   to {
     translate: 0 -6vh;
@@ -77,9 +141,42 @@
   text-align: left;
   border-bottom: 1px solid var(--gold-dim);
 
+  // Thick/thin letterhead rule pair under the masthead.
+  &::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 -4px;
+    border-top: 1px solid var(--paper-faint);
+  }
+
   @media (max-width: mixins.$bp-compact) {
     grid-template-columns: 1fr;
     text-align: center;
+  }
+}
+
+.hq-hero {
+  position: relative;
+  isolation: isolate;
+
+  // Poster backlight behind the insignia — the same light that falls on the
+  // hero figure, tying the masthead to the rail.
+  &::before {
+    content: '';
+    position: absolute;
+    top: -3.25rem;
+    left: -3.25rem;
+    z-index: -1;
+    width: 10rem;
+    aspect-ratio: 1;
+    background: radial-gradient(circle, var(--gold-dim), transparent 70%);
+    opacity: 0.3;
+    pointer-events: none;
+
+    @media (max-width: mixins.$bp-compact) {
+      left: 50%;
+      margin-left: -5rem;
+    }
   }
 }
 
@@ -129,9 +226,12 @@
     color: var(--phosphor);
   }
 
-  @media (max-width: mixins.$bp-narrow) {
+  // Once the header centers, the corner slot is gone — fall into the flow,
+  // with padding grown to a comfortable touch target.
+  @media (max-width: mixins.$bp-compact) {
     position: static;
     margin-top: var(--space-2);
+    padding: var(--space-2) var(--space-3);
   }
 }
 
@@ -143,6 +243,13 @@
   letter-spacing: 0.3em;
   text-indent: 0.3em;
   text-transform: uppercase;
+
+  // Tighter tracking on phones so the masthead holds one line.
+  @media (max-width: mixins.$bp-narrow) {
+    font-size: clamp(1.6rem, 9vw, 2.6rem);
+    letter-spacing: 0.18em;
+    text-indent: 0.18em;
+  }
 }
 
 .hq-subtitle {
@@ -154,7 +261,24 @@
   color: var(--phosphor-dim);
 }
 
+// Plain-language brief for first-time visitors — chrome copy, not lore.
+.hq-tagline {
+  margin: var(--space-3) 0 0;
+  max-width: 44ch;
+  font-size: 0.92rem;
+  line-height: 1.6;
+
+  @media (max-width: mixins.$bp-compact) {
+    margin-inline: auto;
+  }
+}
+
+// Dossier index-rule: a gold tick, the label, then a hairline running out.
 .section-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
   margin: 0 0 var(--space-3);
   font-family: var(--font-mono);
   font-size: 0.75rem;
@@ -162,10 +286,37 @@
   letter-spacing: 0.25em;
   text-transform: uppercase;
   color: var(--phosphor-dim);
+
+  &::before {
+    content: '';
+    flex: none;
+    width: var(--space-2);
+    border-top: 1px solid var(--gold);
+  }
+
+  &::after {
+    content: '';
+    flex: 1;
+    border-top: 1px solid var(--gold-dim);
+  }
 }
 
+// Comms readout strip: the status line shares the feed's terminal framing,
+// with a phosphor channel rule on the left.
 .status-report {
+  position: relative;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--gold-dim);
+  border-left: 3px solid var(--phosphor-dim);
+  border-radius: var(--radius-card);
+  background: var(--noir-lift);
   font-family: var(--font-mono);
+
+  @include mixins.scanlines;
+}
+
+.status-report .section-eyebrow {
+  margin-bottom: var(--space-2);
 }
 
 .status-line {
@@ -214,11 +365,15 @@
   }
 }
 
+// A machined plate rather than a flat outline: subtle noir depth, an inner
+// hairline echoing the stamp's double rule, and a press that gives way.
 .mission-launch {
+  position: relative;
   padding: 0.7rem 2.2rem;
   border: 1px solid var(--gold);
   border-radius: var(--radius-card);
-  background: none;
+  background: linear-gradient(var(--noir-lift), var(--noir-black));
+  box-shadow: var(--shadow-sm);
   color: var(--gold);
   font-family: var(--font-display);
   font-size: 1.05rem;
@@ -229,23 +384,52 @@
   cursor: pointer;
   transition:
     background var(--transition-fast),
-    color var(--transition-fast);
+    color var(--transition-fast),
+    translate var(--transition-fast),
+    box-shadow var(--transition-fast);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border: 1px solid var(--gold-dim);
+    border-radius: var(--radius-card);
+    pointer-events: none;
+    transition: border-color var(--transition-fast);
+  }
 
   &:hover:not(:disabled) {
     background: var(--gold);
     color: var(--noir-black);
+
+    &::before {
+      border-color: var(--noir-black);
+    }
+  }
+
+  &:active:not(:disabled) {
+    translate: 0 1px;
+    box-shadow: none;
   }
 
   &:disabled {
     border-color: var(--gold-dim);
     color: var(--gold-dim);
     cursor: wait;
+
+    &::before {
+      border-color: transparent;
+    }
   }
 
   // Secondary action: hands a PDF to Control — phosphor, so gold stays scarce.
   &--dossier {
     border-color: var(--phosphor-dim);
     color: var(--phosphor);
+
+    &::before {
+      border-color: var(--phosphor-dim);
+    }
 
     &:hover:not(:disabled) {
       background: var(--phosphor);
@@ -255,6 +439,10 @@
     &:disabled {
       border-color: var(--phosphor-dim);
       color: var(--phosphor-dim);
+    }
+
+    &:disabled::before {
+      border-color: transparent;
     }
   }
 
@@ -268,4 +456,24 @@
 
 .mission app-mission-feed {
   width: 100%;
+}
+
+// Archive drawers and the closing colophon, separated by file dividers.
+.analytics,
+.history,
+.hq-footer {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--gold-dim);
+}
+
+// Document colophon: the satire disclaimer, quiet and centered.
+.hq-footer-line {
+  margin: 0 auto;
+  max-width: 60ch;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.7;
+  letter-spacing: 0.08em;
+  text-align: center;
+  color: var(--phosphor-dim);
 }

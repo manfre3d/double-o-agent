@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
+  <!-- The HQ header insignia (see app.html) on a noir tile; raw palette
+       values because tokens don't reach standalone assets. -->
+  <rect width="96" height="96" rx="20" fill="#0d0d0f"/>
+  <g fill="none" stroke="#c9a227" transform="translate(48 48) scale(0.84) translate(-48 -48)">
+    <circle cx="48" cy="48" r="45" stroke-width="2"/>
+    <circle cx="48" cy="48" r="34" stroke-width="1"/>
+    <path stroke-width="2" d="M48 0v14M48 82v14M0 48h14M82 48h14"/>
+    <g stroke-width="1.5">
+      <line x1="48" y1="5" x2="48" y2="11" transform="rotate(30 48 48)"/>
+      <line x1="48" y1="5" x2="48" y2="11" transform="rotate(60 48 48)"/>
+      <line x1="48" y1="5" x2="48" y2="11" transform="rotate(120 48 48)"/>
+      <line x1="48" y1="5" x2="48" y2="11" transform="rotate(150 48 48)"/>
+      <line x1="48" y1="5" x2="48" y2="11" transform="rotate(210 48 48)"/>
+      <line x1="48" y1="5" x2="48" y2="11" transform="rotate(240 48 48)"/>
+      <line x1="48" y1="5" x2="48" y2="11" transform="rotate(300 48 48)"/>
+      <line x1="48" y1="5" x2="48" y2="11" transform="rotate(330 48 48)"/>
+    </g>
+    <circle cx="40" cy="48" r="8" stroke-width="2.5"/>
+    <circle cx="56" cy="48" r="8" stroke-width="2.5"/>
+  </g>
+</svg>
