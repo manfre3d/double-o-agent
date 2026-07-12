@@ -31,14 +31,16 @@ export class MissionsRepository {
 
   async create(mission: {
     id: string;
+    ownerId: string;
     code: string;
     type: MissionType;
   }): Promise<void> {
     await this.prisma.mission.create({ data: mission });
   }
 
-  async nextCodeNumber(): Promise<number> {
-    return (await this.prisma.mission.count()) + 1;
+  /** Per-owner sequence, so each session's dossiers count from 007-001. */
+  async nextCodeNumber(ownerId: string): Promise<number> {
+    return (await this.prisma.mission.count({ where: { ownerId } })) + 1;
   }
 
   async appendEvent(event: MissionEvent): Promise<void> {
@@ -74,8 +76,9 @@ export class MissionsRepository {
     });
   }
 
-  async list(): Promise<Omit<MissionSummaryDto, 'title'>[]> {
+  async list(ownerId: string): Promise<Omit<MissionSummaryDto, 'title'>[]> {
     const rows = await this.prisma.mission.findMany({
+      where: { ownerId },
       orderBy: { startedAt: 'desc' },
     });
     return rows.map((row) => ({
@@ -92,31 +95,38 @@ export class MissionsRepository {
     }));
   }
 
-  /** Aggregation happens in Postgres (GROUP BY / FILTER / jsonb), not in Node. */
-  async analytics(): Promise<MissionAnalyticsRows> {
+  /** Aggregation happens in Postgres (GROUP BY / FILTER / jsonb), not in Node.
+   *  Every query is scoped to the owner; the events roll-up joins back to Mission
+   *  because MissionEvent carries no owner of its own. */
+  async analytics(ownerId: string): Promise<MissionAnalyticsRows> {
     const [typeStatus, gadgets, flaggedRows] = await Promise.all([
       this.prisma.$queryRaw<MissionTypeStatusRow[]>`
         SELECT "type", "status", COUNT(*)::int AS "count",
                AVG(EXTRACT(EPOCH FROM ("finishedAt" - "startedAt")) * 1000)::float AS "avgMs"
         FROM "Mission"
+        WHERE "ownerId" = ${ownerId}
         GROUP BY "type", "status"`,
       this.prisma.$queryRaw<GadgetUsageDto[]>`
-        SELECT "payload"->>'gadget' AS "gadget",
+        SELECT e."payload"->>'gadget' AS "gadget",
                COUNT(*)::int AS "calls",
-               (COUNT(*) FILTER (WHERE "payload"->>'ok' = 'false'))::int AS "failures"
-        FROM "MissionEvent"
-        WHERE "type" = 'gadget_result'
+               (COUNT(*) FILTER (WHERE e."payload"->>'ok' = 'false'))::int AS "failures"
+        FROM "MissionEvent" e
+        JOIN "Mission" m ON m."id" = e."missionId"
+        WHERE e."type" = 'gadget_result' AND m."ownerId" = ${ownerId}
         GROUP BY 1
         ORDER BY "calls" DESC, "gadget"`,
       this.prisma.$queryRaw<{ total: number }[]>`
         SELECT COALESCE(SUM(jsonb_array_length("flagged")), 0)::int AS "total"
-        FROM "Mission"`,
+        FROM "Mission"
+        WHERE "ownerId" = ${ownerId}`,
     ]);
     return { typeStatus, gadgets, flaggedInvoices: flaggedRows[0]?.total ?? 0 };
   }
 
-  async exists(missionId: string): Promise<boolean> {
-    const count = await this.prisma.mission.count({ where: { id: missionId } });
+  async exists(missionId: string, ownerId: string): Promise<boolean> {
+    const count = await this.prisma.mission.count({
+      where: { id: missionId, ownerId },
+    });
     return count > 0;
   }
 
@@ -126,5 +136,13 @@ export class MissionsRepository {
       orderBy: { seq: 'asc' },
     });
     return rows.map((row) => row.payload as unknown as MissionEvent);
+  }
+
+  /** Retention sweep: events cascade via the Mission FK. Returns rows removed. */
+  async deleteOlderThan(cutoff: Date): Promise<number> {
+    const { count } = await this.prisma.mission.deleteMany({
+      where: { startedAt: { lt: cutoff } },
+    });
+    return count;
   }
 }

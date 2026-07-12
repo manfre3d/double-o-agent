@@ -24,6 +24,7 @@ import { MissionsRepository } from './missions.repository';
 
 interface MissionRun {
   id: string;
+  ownerId: string;
   code: string;
   /** Replay so a feed subscriber connecting after launch still sees every event. */
   events: ReplaySubject<MissionEvent>;
@@ -44,32 +45,38 @@ export class MissionsService {
     private readonly repo: MissionsRepository,
   ) {}
 
-  async start(type: MissionType): Promise<StartMissionResponseDto> {
+  async start(
+    type: MissionType,
+    ownerId: string,
+  ): Promise<StartMissionResponseDto> {
     const brief = MISSION_BRIEFS[type];
     if (!brief) {
       throw new NotFoundException(`Unknown mission type: ${String(type)}`);
     }
-    return this.launch(type, brief);
+    return this.launch(type, brief, ownerId);
   }
 
   async startExtraction(
     document: MissionDocument,
+    ownerId: string,
   ): Promise<StartMissionResponseDto> {
-    return this.launch('extraction', extractionBrief(document));
+    return this.launch('extraction', extractionBrief(document), ownerId);
   }
 
   private async launch(
     type: MissionType,
     brief: MissionBrief,
+    ownerId: string,
   ): Promise<StartMissionResponseDto> {
     const run: MissionRun = {
       id: randomUUID(),
-      code: `007-${String(await this.repo.nextCodeNumber()).padStart(3, '0')}`,
+      ownerId,
+      code: `007-${String(await this.repo.nextCodeNumber(ownerId)).padStart(3, '0')}`,
       events: new ReplaySubject<MissionEvent>(),
       seq: 0,
       persist: Promise.resolve(),
     };
-    await this.repo.create({ id: run.id, code: run.code, type });
+    await this.repo.create({ id: run.id, ownerId, code: run.code, type });
     this.runs.set(run.id, run);
 
     const emit = (draft: MissionEventDraft) => {
@@ -118,26 +125,28 @@ export class MissionsService {
     }
   }
 
-  /** Live SSE stream; finished missions are served by storedEvents instead. */
-  eventStream(missionId: string): Observable<MissionEvent> {
+  /** Live SSE stream; finished missions are served by storedEvents instead.
+   *  Ownership is checked here too, so a live run's id can't be replayed by
+   *  another session. */
+  eventStream(missionId: string, ownerId: string): Observable<MissionEvent> {
     const run = this.runs.get(missionId);
-    if (!run) {
+    if (!run || run.ownerId !== ownerId) {
       throw new NotFoundException(`Unknown mission: ${missionId}`);
     }
     return run.events.asObservable();
   }
 
-  async history(): Promise<MissionSummaryDto[]> {
-    const summaries = await this.repo.list();
+  async history(ownerId: string): Promise<MissionSummaryDto[]> {
+    const summaries = await this.repo.list(ownerId);
     return summaries.map((summary) => ({
       ...summary,
       title: MISSION_TITLES[summary.type] ?? summary.type,
     }));
   }
 
-  async analytics(): Promise<MissionAnalyticsDto> {
+  async analytics(ownerId: string): Promise<MissionAnalyticsDto> {
     const { typeStatus, gadgets, flaggedInvoices } =
-      await this.repo.analytics();
+      await this.repo.analytics(ownerId);
 
     const perType = new Map<
       MissionType,
@@ -202,8 +211,11 @@ export class MissionsService {
     };
   }
 
-  async storedEvents(missionId: string): Promise<MissionEvent[]> {
-    if (!(await this.repo.exists(missionId))) {
+  async storedEvents(
+    missionId: string,
+    ownerId: string,
+  ): Promise<MissionEvent[]> {
+    if (!(await this.repo.exists(missionId, ownerId))) {
       throw new NotFoundException(`Unknown mission: ${missionId}`);
     }
     return this.repo.getEvents(missionId);

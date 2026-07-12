@@ -14,7 +14,7 @@ A 007-parody web app whose "secret agent" is an AI agent running small-business 
 
 ```bash
 npm install                # installs all workspaces + generates the Prisma client
-cp .env.example .env       # defaults work out of the box; add your OpenAI key for live missions
+cp .env.example .env       # boots as-is; add your OpenAI key for live missions, and a real SESSION_COOKIE_SECRET before sharing it
 npm run db                 # starts Postgres (docker compose up -d)
 npm run db:migrate         # applies the Prisma schema
 ```
@@ -57,7 +57,7 @@ npm run eval           # Q Branch quality control (see below)
 Production is a single Render web service: Control serves the API **and** HQ's built bundle from the same origin (no CORS, no second deploy). The database is a free [Neon](https://neon.tech) Postgres. Everything is declared in [`render.yaml`](./render.yaml).
 
 1. Create a Neon project and copy its Postgres connection string.
-2. On Render: **New → Blueprint**, connect this repo. When prompted, paste the Neon string as `DATABASE_URL`; leave `OPENAI_API_KEY` empty for demo mode or set a real key for live missions.
+2. On Render: **New → Blueprint**, connect this repo. When prompted, paste the Neon string as `DATABASE_URL`; leave `OPENAI_API_KEY` empty for demo mode or set a real key for live missions. `SESSION_COOKIE_SECRET` is generated automatically (`generateValue`) — nothing to paste; it keys the anonymous per-session cookie that isolates each visitor's missions.
 3. Done. Every push to `main` redeploys automatically **after** the GitHub Actions run is green (`autoDeployTrigger: checksPass`); migrations run on boot (`prisma migrate deploy`).
 
 Free-tier note: the service spins down when idle — the first visit after a quiet spell takes up to a minute to wake.

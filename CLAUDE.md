@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-> **Status: Stretch 4 (deploy) wired — `render.yaml` declares one Render web service (Control serves HQ's built bundle same-origin via `ServeStaticModule`; Neon Postgres as `DATABASE_URL`; `prisma migrate deploy` on boot; auto-deploy only on green CI). Goes live once the repo is connected as a Render Blueprint — see README «Deploy». All roadmap phases and stretch goals are now built; see ROADMAP.md.** Update this line as phases complete.
+> **Status: Security hardening on top of Stretch 4 — every visitor is now an isolated anonymous session (signed `__Host-` cookie → `Mission.ownerId`; all mission reads are deny-by-default owner-scoped, closing the OWASP A01 cross-user data leak / IDOR). Adds session-keyed rate limiting on the LLM endpoints, an hourly retention purge, and PDF magic-byte + filename hardening. New required secret `SESSION_COOKIE_SECRET` (Render auto-generates it; see README «Deploy»). Deploy is still the Stretch-4 Render Blueprint (`prisma migrate deploy` on boot). All roadmap phases + stretch goals built; see ROADMAP.md.** Update this line as phases complete.
 
 Double-O Agent is a 007-parody web app whose "secret agent" is an AI agent running SMB-finance missions (invoice extraction, duplicate hunting, reconciliation), streamed live to a spy-noir dashboard. The full what-and-why, stack rationale, and build phases live in [ROADMAP.md](./ROADMAP.md) — read it before proposing structural changes.
 

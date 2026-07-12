@@ -10,7 +10,10 @@ datasource db {
 
 model Mission {
   id         String    @id
-  code       String    @unique
+  /// Anonymous session token that owns this mission; every read is scoped to it.
+  /// Generic on purpose — a real user id can reuse this column later.
+  ownerId    String
+  code       String
   type       String
   status     String    @default("running")
   startedAt  DateTime  @default(now())
@@ -22,6 +25,10 @@ model Mission {
   /// ExtractedInvoiceDto as JSON (extraction missions only).
   extracted  Json?
   events     MissionEvent[]
+
+  /// Per-owner code sequence, so each session gets its own 007-001…
+  @@unique([ownerId, code])
+  @@index([ownerId, startedAt])
 }
 
 model MissionEvent {

@@ -17,8 +17,18 @@ services:
     envVars:
       - key: NODE_VERSION
         value: "24"
+      # Production toggles Secure, '__Host-'-prefixed session cookies.
+      - key: NODE_ENV
+        value: production
       - key: DATABASE_URL
         sync: false
+      # Signs the anonymous per-session cookie that isolates each visitor's
+      # missions. Render generates a strong value once and keeps it stable.
+      - key: SESSION_COOKIE_SECRET
+        generateValue: true
+      # Missions (and their events) are purged this many hours after they start.
+      - key: MISSION_RETENTION_HOURS
+        value: "72"
       # Optional: leave empty to run missions on the scripted demo brain.
       - key: OPENAI_API_KEY
         sync: false
