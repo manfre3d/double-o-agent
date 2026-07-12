@@ -291,6 +291,7 @@
   max-width: 44ch;
   font-size: 0.92rem;
   line-height: 1.6;
+  white-space: pre-line; // honor explicit "\n" breaks in the tagline copy
 
   @media (max-width: mixins.$bp-compact) {
     margin-inline: auto;
