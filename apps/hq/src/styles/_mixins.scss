@@ -42,12 +42,16 @@ $bp-narrow: 480px;
   }
 }
 
-// Faint speckle for dossier-paper surfaces. Sets background-image only;
-// the host keeps its own background-color.
-@mixin paper-grain {
+// Faint speckle — ink-toned for dossier-paper surfaces by default; pass
+// light dot colors for grain over noir (the hero rail). Sets
+// background-image only; the host keeps its own background-color.
+@mixin paper-grain(
+  $dot-strong: rgb(26 26 24 / 5%),
+  $dot-faint: rgb(26 26 24 / 3%)
+) {
   background-image:
-    radial-gradient(rgb(26 26 24 / 5%) 1px, transparent 1px),
-    radial-gradient(rgb(26 26 24 / 3%) 1px, transparent 1px);
+    radial-gradient($dot-strong 1px, transparent 1px),
+    radial-gradient($dot-faint 1px, transparent 1px);
   background-size: 7px 7px, 11px 11px;
   background-position: 0 0, 3px 5px;
 }
