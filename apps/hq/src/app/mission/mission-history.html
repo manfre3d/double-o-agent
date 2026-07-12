@@ -1,12 +1,12 @@
-<h2 class="archive-title">Archivio missioni</h2>
+<h2 class="archive-title">{{ language.t('archiveTitle') }}</h2>
 
 @if (missions.error()) {
-  <p class="error-frame archive-error">Archivio non disponibile.</p>
+  <p class="error-frame archive-error">{{ language.t('archiveError') }}</p>
 } @else if (missions.value(); as list) {
   @if (!list.length) {
     <div class="empty-stamp">
-      <span class="empty-stamp-mark">Archivio vuoto</span>
-      <p class="archive-note">Nessuna missione in archivio.</p>
+      <span class="empty-stamp-mark">{{ language.t('archiveEmpty') }}</span>
+      <p class="archive-note">{{ language.t('noMissionsInArchive') }}</p>
     </div>
   }
   <ul class="dossier-list">
@@ -21,20 +21,20 @@
           <span [class]="'dossier-stamp dossier-stamp--' + m.status">
             {{ stampLabel(m.status) }}
           </span>
-          <span class="dossier-code">Missione n. {{ m.code }} &mdash; {{ m.title }}</span>
+          <span class="dossier-code">{{ language.t('missionNo', { n: m.code }) }} &mdash; {{ m.title }}</span>
           <span class="dossier-sub">
-            Stato: {{ statusLabel(m.status) }} &middot;
+            {{ language.t('statusLine', { status: statusLabel(m.status) }) }} &middot;
             {{ m.startedAt | date: 'dd/MM/yyyy HH:mm' }}
           </span>
         </button>
         @if (openId() === m.missionId) {
           <div class="dossier-body">
             @if (m.debrief) {
-              <h3 class="dossier-heading">Rapporto di missione</h3>
+              <h3 class="dossier-heading">{{ language.t('missionReport') }}</h3>
               <p class="dossier-debrief"><span class="dossier-redacted">{{ m.debrief }}</span></p>
               @if (m.extracted; as invoice) {
                 <p class="dossier-extract">
-                  Fattura {{ invoice.number }} &middot; {{ invoice.counterparty }} &middot;
+                  {{ language.t('invoiceLabel') }} {{ invoice.number }} &middot; {{ invoice.counterparty }} &middot;
                   {{ amount(invoice) }} &middot; {{ invoice.issueDate | date: 'dd/MM/yyyy' }}
                 </p>
               }
@@ -49,10 +49,10 @@
               }
             }
             @if (openEvents.value(); as events) {
-              <h3 class="dossier-heading">Trascrizione</h3>
+              <h3 class="dossier-heading">{{ language.t('transcript') }}</h3>
               <app-mission-feed [events]="events" [instant]="true" />
             } @else if (openEvents.isLoading()) {
-              <p class="dossier-note loading-cursor">Recupero del dossier</p>
+              <p class="dossier-note loading-cursor">{{ language.t('retrievingDossier') }}</p>
             }
           </div>
         }
@@ -60,5 +60,5 @@
     }
   </ul>
 } @else {
-  <p class="archive-note loading-cursor">Recupero dell&rsquo;archivio</p>
+  <p class="archive-note loading-cursor">{{ language.t('retrievingArchive') }}</p>
 }

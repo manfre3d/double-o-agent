@@ -32,39 +32,45 @@
       </g>
     </svg>
       <h1 class="hq-title">Double-O Agent</h1>
-      <p class="hq-subtitle">HQ &mdash; live link to Control</p>
-      <p class="hq-tagline">
-        The secret agent here is an AI. It runs small-business finance missions
-        &mdash; extracting invoices, hunting duplicates, reconciling records
-        &mdash; and streams every move to this dashboard, live.
-      </p>
+      <p class="hq-subtitle">{{ language.t('subtitle') }}</p>
+      <p class="hq-tagline">{{ language.t('tagline') }}</p>
     </div>
-    <button
-      type="button"
-      class="hq-audio"
-      (click)="sound.toggle()"
-      [attr.aria-pressed]="sound.enabled()"
-    >
-      Audio: {{ sound.enabled() ? 'attivo' : 'silenziato' }}
-    </button>
+    <div class="hq-controls">
+      <button
+        type="button"
+        class="hq-lang"
+        (click)="language.toggle()"
+        [attr.aria-label]="language.t('switchLanguage')"
+      >
+        {{ language.t('langLabelPrefix') }}: {{ language.current() === 'it' ? 'IT' : 'EN' }}
+      </button>
+      <button
+        type="button"
+        class="hq-audio"
+        (click)="sound.toggle()"
+        [attr.aria-pressed]="sound.enabled()"
+      >
+        {{ sound.enabled() ? language.t('audioOn') : language.t('audioOff') }}
+      </button>
+    </div>
   </header>
 
   <section class="status-report" aria-live="polite">
-    <h2 class="section-eyebrow">Control status</h2>
+    <h2 class="section-eyebrow">{{ language.t('controlStatusTitle') }}</h2>
     @if (controlStatus.error()) {
-      <p class="error-frame status-error">Nessuna risposta da Control.</p>
+      <p class="error-frame status-error">{{ language.t('controlStatusError') }}</p>
     } @else if (controlStatus.value(); as report) {
       <p class="status-line">
         <span class="status-codename">[{{ report.codename }}]</span>
         {{ report.message }}
       </p>
     } @else {
-      <p class="status-line loading-cursor">In contatto con Control</p>
+      <p class="status-line loading-cursor">{{ language.t('controlStatusLoading') }}</p>
     }
   </section>
 
   <section class="mission" aria-live="polite">
-    <h2 class="section-eyebrow">Live mission</h2>
+    <h2 class="section-eyebrow">{{ language.t('liveMissionTitle') }}</h2>
     <div class="mission-actions">
       <button
         type="button"
@@ -72,7 +78,7 @@
         (click)="mission.start()"
         [disabled]="mission.running()"
       >
-        {{ mission.running() ? 'Missione in corso…' : 'Avvia missione' }}
+        {{ mission.running() ? language.t('missionRunning') : language.t('startMission') }}
       </button>
       <button
         type="button"
@@ -80,7 +86,7 @@
         (click)="dossierInput.click()"
         [disabled]="mission.running()"
       >
-        Consegna dossier (PDF)
+        {{ language.t('submitDossier') }}
       </button>
       <input
         #dossierInput
@@ -92,8 +98,8 @@
     </div>
     @if (mission.linkError(); as error) {
       <div class="error-frame">
-        <p class="mission-error-eyebrow">Trasmissione interrotta</p>
-        <p class="mission-error-text">{{ error }}</p>
+        <p class="mission-error-eyebrow">{{ language.t('transmissionInterrupted') }}</p>
+        <p class="mission-error-text">{{ language.t(error) }}</p>
       </div>
     }
     @if (mission.events().length) {
@@ -110,10 +116,6 @@
   </section>
 
   <footer class="hq-footer">
-    <p class="hq-footer-line">
-      Double-O Agent is satire &mdash; a 007 parody where the spy is a language
-      model and the villain is an overdue invoice. Not affiliated with, or
-      endorsed by, the James Bond franchise or its rights holders.
-    </p>
+    <p class="hq-footer-line">{{ language.t('footer') }}</p>
   </footer>
 </main>

@@ -7,6 +7,7 @@ import {
   type StartMissionRequestDto,
   type StartMissionResponseDto,
 } from '@double-o/shared';
+import type { TranslationKey } from '../i18n/translations';
 
 @Injectable({ providedIn: 'root' })
 export class MissionService {
@@ -15,7 +16,8 @@ export class MissionService {
 
   readonly events = signal<MissionEvent[]>([]);
   readonly running = signal(false);
-  readonly linkError = signal<string | undefined>(undefined);
+  /** Translation key for the current link failure, if any — the view renders it in the active language. */
+  readonly linkError = signal<TranslationKey | undefined>(undefined);
   /** Bumped when a mission ends — history views reload on it. */
   readonly finishedCount = signal(0);
 
@@ -23,7 +25,7 @@ export class MissionService {
     const body: StartMissionRequestDto = { type: 'duplicate-hunt' };
     this.launch(
       this.http.post<StartMissionResponseDto>('/api/missions', body),
-      'Impossibile contattare Control.',
+      'errStartMission',
     );
   }
 
@@ -33,13 +35,13 @@ export class MissionService {
     form.append('file', file, file.name);
     this.launch(
       this.http.post<StartMissionResponseDto>('/api/missions/extract', form),
-      'Dossier respinto: serve un PDF con testo leggibile.',
+      'errDossierRejected',
     );
   }
 
   private launch(
     request: Observable<StartMissionResponseDto>,
-    failureMessage: string,
+    failureMessage: TranslationKey,
   ): void {
     if (this.running()) {
       return;
@@ -79,7 +81,7 @@ export class MissionService {
     source.onerror = () => {
       if (this.running()) {
         this.running.set(false);
-        this.linkError.set('Collegamento con Control interrotto.');
+        this.linkError.set('errLinkInterrupted');
       }
       this.close();
     };

@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { httpResource } from '@angular/common/http';
 import type { StatusReportDto } from '@double-o/shared';
 import { AgentSilhouette } from './agent-silhouette';
+import { LanguageService } from './language.service';
 import { SoundService } from './sound.service';
 import { MissionService } from './mission/mission.service';
 import { MissionAnalytics } from './mission/mission-analytics';
@@ -20,6 +21,7 @@ export class App {
   protected readonly controlStatus = httpResource<StatusReportDto>(() => '/api/status');
   protected readonly mission = inject(MissionService);
   protected readonly sound = inject(SoundService);
+  protected readonly language = inject(LanguageService);
   protected readonly introDone = signal(false);
 
   protected onDossierSelected(input: HTMLInputElement): void {

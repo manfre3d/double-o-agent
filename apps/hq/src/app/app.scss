@@ -216,10 +216,23 @@
   }
 }
 
-.hq-audio {
+.hq-controls {
   position: absolute;
   top: var(--space-3);
   right: 0;
+  display: flex;
+  gap: var(--space-2);
+
+  // Once the header centers, the corner slot is gone — fall into the flow.
+  @media (max-width: mixins.$bp-compact) {
+    position: static;
+    justify-content: center;
+    margin-top: var(--space-2);
+  }
+}
+
+.hq-lang,
+.hq-audio {
   padding: var(--space-1) var(--space-2);
   border: 1px solid transparent;
   border-radius: var(--radius-card);
@@ -240,11 +253,8 @@
     color: var(--phosphor);
   }
 
-  // Once the header centers, the corner slot is gone — fall into the flow,
-  // with padding grown to a comfortable touch target.
+  // Comfortable touch target once the buttons fall into the flow.
   @media (max-width: mixins.$bp-compact) {
-    position: static;
-    margin-top: var(--space-2);
     padding: var(--space-2) var(--space-3);
   }
 }

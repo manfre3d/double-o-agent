@@ -27,10 +27,10 @@
     <table class="transmission-ledger">
       <thead>
         <tr>
-          <th>Numero</th>
-          <th>Fornitore</th>
-          <th>Importo</th>
-          <th>Data</th>
+          <th>{{ language.t('fieldNumber') }}</th>
+          <th>{{ language.t('fieldVendor') }}</th>
+          <th>{{ language.t('fieldAmount') }}</th>
+          <th>{{ language.t('fieldDate') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -46,7 +46,7 @@
     </table>
   </div>
   @if (ledger.more) {
-    <p class="transmission-note">&hellip; e altre {{ ledger.more }} voci</p>
+    <p class="transmission-note">{{ language.t('moreEntries', { n: ledger.more }) }}</p>
   }
 }
 
@@ -55,10 +55,10 @@
     <table class="transmission-ledger">
       <thead>
         <tr>
-          <th>Numero</th>
-          <th>Fornitore</th>
-          <th>Importo</th>
-          <th>Data</th>
+          <th>{{ language.t('fieldNumber') }}</th>
+          <th>{{ language.t('fieldVendor') }}</th>
+          <th>{{ language.t('fieldAmount') }}</th>
+          <th>{{ language.t('fieldDate') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -84,13 +84,13 @@
 
 @if (invoice(); as invoice) {
   <dl class="transmission-record">
-    <dt>Fattura n.</dt>
+    <dt>{{ language.t('invoiceNo') }}</dt>
     <dd>{{ invoice.number }}</dd>
-    <dt>Fornitore</dt>
+    <dt>{{ language.t('vendor') }}</dt>
     <dd>{{ invoice.counterparty }}</dd>
-    <dt>Importo</dt>
+    <dt>{{ language.t('amount') }}</dt>
     <dd>{{ amount(invoice) }}</dd>
-    <dt>Emessa il</dt>
+    <dt>{{ language.t('issuedOn') }}</dt>
     <dd>{{ invoice.issueDate | date: 'dd/MM/yyyy' }}</dd>
   </dl>
 }
@@ -106,7 +106,7 @@
 
 @if (raw()) {
   <details class="transmission-raw">
-    <summary>Dati grezzi</summary>
+    <summary>{{ language.t('rawData') }}</summary>
     <pre>{{ result()?.result | json }}</pre>
   </details>
 }

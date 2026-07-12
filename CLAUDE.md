@@ -18,6 +18,8 @@ Double-O Agent is a 007-parody web app whose "secret agent" is an AI agent runni
 
 **Language rule:** lore strings shown to users (mission names, villain, debrief prose) are **Italian**. UI chrome, README, code, comments, commits, and identifiers are **English**. The joke lives in UI strings and lore names at the domain level (gadgets, missions, debriefs) — never in low-level identifiers (no `vodkaMartiniService`).
 
+HQ additionally has a user-facing language toggle (the header button) that switches all static dashboard strings — chrome and lore-flavored labels alike — between English and Italian; it defaults to Italian. New static UI strings go in `apps/hq/src/app/i18n/translations.ts` (keyed, both `en`/`it` required) and are read via `LanguageService.t()`, never hardcoded in a template. This toggle does not extend to content streamed live from Control (mission events, debrief prose) — that's LLM/backend-generated and stays Italian per the rule above regardless of the toggle.
+
 ## Commands
 
 ```bash

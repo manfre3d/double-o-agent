@@ -10,6 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { AgentSilhouette } from '../agent-silhouette';
+import { LanguageService } from '../language.service';
 import { motionOk } from '../motion';
 
 // The classic gun-barrel sequence. A barrel beat (WebGL fly-through, or the
@@ -45,6 +46,8 @@ interface IntroScene {
 })
 export class GunBarrel {
   readonly finished = output<void>();
+
+  protected readonly language = inject(LanguageService);
 
   // The WebGL fly-through is the hero opening; the CSS dot-track remains the
   // fallback for reduced motion, missing WebGL, or a failed chunk load.

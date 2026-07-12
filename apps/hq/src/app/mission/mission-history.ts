@@ -8,22 +8,24 @@ import {
 import { DatePipe } from '@angular/common';
 import { httpResource } from '@angular/common/http';
 import type { MissionEvent, MissionStatus, MissionSummaryDto } from '@double-o/shared';
+import type { TranslationKey } from '../i18n/translations';
+import { LanguageService } from '../language.service';
 import { injectViewTransition } from '../view-transition';
 import { MissionService } from './mission.service';
 import { MissionFeed } from './mission-feed';
 import { formatInvoiceAmount } from './format-amount';
 
-const STATUS_LABELS: Record<MissionStatus, string> = {
-  running: 'IN CORSO',
-  completed: 'COMPLETATA',
-  failed: 'FALLITA',
+const STATUS_LABEL_KEYS: Record<MissionStatus, TranslationKey> = {
+  running: 'statusRunning',
+  completed: 'statusCompleted',
+  failed: 'statusFailed',
 };
 
 /** Stamp inked onto the dossier card face, per mission status. */
-const STAMP_LABELS: Record<MissionStatus, string> = {
-  running: 'In corso',
-  completed: 'Top secret',
-  failed: 'Fallita',
+const STAMP_LABEL_KEYS: Record<MissionStatus, TranslationKey> = {
+  running: 'stampRunning',
+  completed: 'topSecret',
+  failed: 'stampFailed',
 };
 
 @Component({
@@ -35,6 +37,7 @@ const STAMP_LABELS: Record<MissionStatus, string> = {
 })
 export class MissionHistory {
   private readonly mission = inject(MissionService);
+  protected readonly language = inject(LanguageService);
 
   protected readonly missions = httpResource<MissionSummaryDto[]>(() => '/api/missions');
   protected readonly openId = signal<string | undefined>(undefined);
@@ -52,13 +55,13 @@ export class MissionHistory {
   }
 
   protected statusLabel(status: MissionStatus): string {
-    return STATUS_LABELS[status];
+    return this.language.t(STATUS_LABEL_KEYS[status]);
   }
 
   protected readonly amount = formatInvoiceAmount;
 
   protected stampLabel(status: MissionStatus): string {
-    return STAMP_LABELS[status];
+    return this.language.t(STAMP_LABEL_KEYS[status]);
   }
 
   private readonly withViewTransition = injectViewTransition();

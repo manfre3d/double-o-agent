@@ -1,6 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { DatePipe, JsonPipe } from '@angular/common';
 import type { GadgetCallEvent, GadgetResultEvent } from '@double-o/shared';
+import { LanguageService } from '../language.service';
+import type { TranslationKey } from '../i18n/translations';
 import { TypewriterText } from './typewriter-text';
 import { formatInvoiceAmount } from './format-amount';
 import {
@@ -16,12 +18,12 @@ import {
 const LEDGER_ROW_CAP = 8;
 const TEXT_EXCERPT_CHARS = 280;
 
-/** Lore labels for known invoice fields (ledger header, match report). */
-const FIELD_LABELS: Record<string, string> = {
-  number: 'Numero',
-  counterparty: 'Fornitore',
-  amount: 'Importo',
-  issueDate: 'Data',
+/** Translation keys for known invoice fields (ledger header, match report). */
+const FIELD_LABEL_KEYS: Record<string, TranslationKey> = {
+  number: 'fieldNumber',
+  counterparty: 'fieldVendor',
+  amount: 'fieldAmount',
+  issueDate: 'fieldDate',
 };
 
 interface ResultVm {
@@ -46,6 +48,7 @@ export class GadgetTransmission {
   readonly instant = input(false);
 
   protected readonly amount = formatInvoiceAmount;
+  protected readonly language = inject(LanguageService);
 
   protected readonly call = computed(() => {
     const event = this.event();
@@ -97,7 +100,7 @@ export class GadgetTransmission {
         comparison: {
           rows: [comparison.a, comparison.b],
           matches: Object.entries(comparison.matches).map(([field, ok]) => ({
-            label: FIELD_LABELS[field] ?? field,
+            label: FIELD_LABEL_KEYS[field] ? this.language.t(FIELD_LABEL_KEYS[field]) : field,
             ok,
           })),
         },

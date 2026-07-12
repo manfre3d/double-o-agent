@@ -1,21 +1,21 @@
-<h2 class="analytics-title">Analisi operativa</h2>
+<h2 class="analytics-title">{{ language.t('analyticsTitle') }}</h2>
 
 @if (stats.error()) {
-  <p class="error-frame analytics-error">Analisi non disponibile.</p>
+  <p class="error-frame analytics-error">{{ language.t('analyticsError') }}</p>
 } @else if (stats.value(); as report) {
   @if (!report.totalMissions) {
     <div class="empty-stamp">
-      <span class="empty-stamp-mark">Nessun dato</span>
-      <p class="analytics-note">Archivio vuoto: nessun dato da analizzare.</p>
+      <span class="empty-stamp-mark">{{ language.t('noData') }}</span>
+      <p class="analytics-note">{{ language.t('archiveEmptyAnalytics') }}</p>
     </div>
   } @else {
     <dl class="stat-tiles">
       <div class="stat-tile">
-        <dt class="stat-tile-label">Missioni totali</dt>
+        <dt class="stat-tile-label">{{ language.t('totalMissions') }}</dt>
         <dd class="stat-tile-value"><app-stat-value [value]="report.totalMissions" /></dd>
       </div>
       <div class="stat-tile">
-        <dt class="stat-tile-label">Tasso di successo</dt>
+        <dt class="stat-tile-label">{{ language.t('successRate') }}</dt>
         <dd class="stat-tile-value stat-tile-value--gold">
           @if (report.successRate !== undefined) {
             <app-stat-value [value]="report.successRate * 100" [format]="formatPercent" />
@@ -25,7 +25,7 @@
         </dd>
       </div>
       <div class="stat-tile">
-        <dt class="stat-tile-label">Durata media</dt>
+        <dt class="stat-tile-label">{{ language.t('avgDuration') }}</dt>
         <dd class="stat-tile-value">
           @if (report.avgDurationMs !== undefined) {
             <app-stat-value [value]="report.avgDurationMs" [format]="formatDuration" />
@@ -35,14 +35,14 @@
         </dd>
       </div>
       <div class="stat-tile">
-        <dt class="stat-tile-label">Fatture segnalate</dt>
+        <dt class="stat-tile-label">{{ language.t('flaggedInvoices') }}</dt>
         <dd class="stat-tile-value"><app-stat-value [value]="report.flaggedInvoices" /></dd>
       </div>
     </dl>
 
     <div class="analytics-grid">
       <section class="chart">
-        <h3 class="chart-title">Missioni per tipo</h3>
+        <h3 class="chart-title">{{ language.t('missionsByType') }}</h3>
         <ul class="bar-list">
           @for (t of report.byType; track t.type) {
             <li class="bar-row" [style.--bar-index]="$index">
@@ -66,25 +66,25 @@
                 }
               </div>
               <p class="bar-sub">
-                Completate {{ t.completed }}
-                @if (t.failed) { &middot; Fallite {{ t.failed }} }
-                @if (t.running) { &middot; In corso {{ t.running }} }
+                {{ language.t('completed') }} {{ t.completed }}
+                @if (t.failed) { &middot; {{ language.t('failed') }} {{ t.failed }} }
+                @if (t.running) { &middot; {{ language.t('running') }} {{ t.running }} }
                 @if (t.avgDurationMs !== undefined) {
-                  &middot; Durata media {{ duration(t.avgDurationMs) }}
+                  &middot; {{ language.t('avgDuration') }} {{ duration(t.avgDurationMs) }}
                 }
               </p>
             </li>
           }
         </ul>
         <ul class="legend">
-          <li class="legend-item"><span class="legend-swatch"></span>Completate</li>
-          <li class="legend-item"><span class="legend-swatch legend-swatch--failed"></span>Fallite</li>
-          <li class="legend-item"><span class="legend-swatch legend-swatch--running"></span>In corso</li>
+          <li class="legend-item"><span class="legend-swatch"></span>{{ language.t('completed') }}</li>
+          <li class="legend-item"><span class="legend-swatch legend-swatch--failed"></span>{{ language.t('failed') }}</li>
+          <li class="legend-item"><span class="legend-swatch legend-swatch--running"></span>{{ language.t('running') }}</li>
         </ul>
       </section>
 
       <section class="chart">
-        <h3 class="chart-title">Impiego dei gadget</h3>
+        <h3 class="chart-title">{{ language.t('gadgetUsage') }}</h3>
         @if (report.gadgets.length) {
           <ul class="bar-list">
             @for (g of report.gadgets; track g.gadget) {
@@ -95,7 +95,8 @@
                     {{ g.calls }}
                     @if (g.failures) {
                       <span class="bar-failures">
-                        {{ g.failures }} {{ g.failures === 1 ? 'guasto' : 'guasti' }}
+                        {{ g.failures }}
+                        {{ language.t(g.failures === 1 ? 'failureSingular' : 'failurePlural') }}
                       </span>
                     }
                   </span>
@@ -111,11 +112,11 @@
             }
           </ul>
         } @else {
-          <p class="analytics-note">Nessun gadget impiegato finora.</p>
+          <p class="analytics-note">{{ language.t('noGadgetsUsed') }}</p>
         }
       </section>
     </div>
   }
 } @else {
-  <p class="analytics-note loading-cursor">Elaborazione dei dati</p>
+  <p class="analytics-note loading-cursor">{{ language.t('processingData') }}</p>
 }

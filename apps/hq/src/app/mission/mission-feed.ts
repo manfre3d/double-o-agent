@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import type { MissionEvent } from '@double-o/shared';
+import { LanguageService } from '../language.service';
 import { motionOk } from '../motion';
 import { SoundService } from '../sound.service';
 import { GadgetTransmission } from './gadget-transmission';
@@ -43,6 +44,7 @@ export class MissionFeed {
   readonly instant = input(false);
 
   protected readonly amount = formatInvoiceAmount;
+  protected readonly language = inject(LanguageService);
 
   private readonly list = viewChild.required<ElementRef<HTMLOListElement>>('list');
 

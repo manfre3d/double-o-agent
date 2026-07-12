@@ -10,6 +10,7 @@ import type {
   MissionAnalyticsDto,
   MissionTypeStatsDto,
 } from '@double-o/shared';
+import { LanguageService } from '../language.service';
 import { MissionService } from './mission.service';
 import { StatValue } from './stat-value';
 
@@ -22,6 +23,7 @@ import { StatValue } from './stat-value';
 })
 export class MissionAnalytics {
   private readonly mission = inject(MissionService);
+  protected readonly language = inject(LanguageService);
 
   protected readonly stats = httpResource<MissionAnalyticsDto>(
     () => '/api/missions/analytics',

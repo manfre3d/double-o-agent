@@ -5,7 +5,7 @@
       <div class="feed-body">
         @switch (event.type) {
           @case ('briefing') {
-            <p class="feed-briefing-code">Missione n. {{ event.code }}</p>
+            <p class="feed-briefing-code">{{ language.t('missionNo', { n: event.code }) }}</p>
             <h3 class="feed-briefing-title">{{ event.title }}</h3>
             <p class="feed-line">
               <app-typewriter-text [text]="event.objective" [instant]="instant()" />
@@ -24,18 +24,18 @@
           }
           @case ('debrief') {
             <article class="debrief">
-              <span class="debrief-stamp">Top secret</span>
-              <h3 class="debrief-title">Rapporto di missione</h3>
+              <span class="debrief-stamp">{{ language.t('topSecret') }}</span>
+              <h3 class="debrief-title">{{ language.t('missionReport') }}</h3>
               <p class="debrief-text"><span class="debrief-redacted">{{ event.text }}</span></p>
               @if (event.extracted; as invoice) {
                 <dl class="debrief-record">
-                  <dt>Fattura n.</dt>
+                  <dt>{{ language.t('invoiceNo') }}</dt>
                   <dd>{{ invoice.number }}</dd>
-                  <dt>Fornitore</dt>
+                  <dt>{{ language.t('vendor') }}</dt>
                   <dd>{{ invoice.counterparty }}</dd>
-                  <dt>Importo</dt>
+                  <dt>{{ language.t('amount') }}</dt>
                   <dd>{{ amount(invoice) }}</dd>
-                  <dt>Emessa il</dt>
+                  <dt>{{ language.t('issuedOn') }}</dt>
                   <dd>{{ invoice.issueDate | date: 'dd/MM/yyyy' }}</dd>
                 </dl>
               }
