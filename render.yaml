@@ -29,6 +29,7 @@ services:
       # Missions (and their events) are purged this many hours after they start.
       - key: MISSION_RETENTION_HOURS
         value: "72"
-      # Optional: leave empty to run missions on the scripted demo brain.
+      # Optional. With a key set, missions run live by default and visitors can
+      # still choose demo per mission; leave empty to force demo for everyone.
       - key: OPENAI_API_KEY
         sync: false

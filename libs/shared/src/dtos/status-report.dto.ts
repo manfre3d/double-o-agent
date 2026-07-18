@@ -5,4 +5,6 @@ export interface StatusReportDto {
   message: string;
   /** ISO-8601 timestamp. */
   reportedAt: string;
+  /** True when a real OpenAI key is configured, so live missions are possible. */
+  llmAvailable: boolean;
 }

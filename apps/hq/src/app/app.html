@@ -52,6 +52,17 @@
       >
         {{ sound.enabled() ? language.t('audioOn') : language.t('audioOff') }}
       </button>
+      <button
+        type="button"
+        class="hq-mode"
+        [class.hq-mode--demo]="effectiveMode() === 'demo'"
+        (click)="toggleMode()"
+        [disabled]="!liveAvailable()"
+        [attr.aria-pressed]="effectiveMode() === 'demo'"
+        [attr.aria-label]="language.t('modeToggleLabel')"
+      >
+        {{ language.t('modeLabelPrefix') }}: {{ effectiveMode() === 'live' ? language.t('modeLive') : language.t('modeDemo') }}
+      </button>
     </div>
   </header>
 
@@ -74,20 +85,20 @@
     <p class="mission-intro">{{ language.t('missionIntro') }}</p>
     <div class="mission-actions">
       <article class="mission-brief">
-        <p class="mission-brief__tag">{{ language.t('demoTag') }}</p>
+        <p class="mission-brief__tag">{{ effectiveMode() === 'live' ? language.t('liveTag') : language.t('demoTag') }}</p>
         <h3 class="mission-brief__title">{{ language.t('missionHuntTitle') }}</h3>
         <p class="mission-brief__desc">{{ language.t('missionHuntDesc') }}</p>
         <button
           type="button"
           class="mission-launch"
-          (click)="mission.start()"
+          (click)="mission.start(demoMode())"
           [disabled]="mission.running()"
         >
           {{ mission.running() ? language.t('missionRunning') : language.t('startMission') }}
         </button>
       </article>
       <article class="mission-brief">
-        <p class="mission-brief__tag">{{ language.t('demoTag') }}</p>
+        <p class="mission-brief__tag">{{ effectiveMode() === 'live' ? language.t('liveTag') : language.t('demoTag') }}</p>
         <h3 class="mission-brief__title">{{ language.t('missionDossierTitle') }}</h3>
         <p class="mission-brief__desc">{{ language.t('missionDossierDesc') }}</p>
         <button

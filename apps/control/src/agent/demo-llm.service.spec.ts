@@ -17,7 +17,8 @@ function buildLoop() {
     new ReadDocumentGadget(),
     new RecordInvoiceGadget(),
   );
-  return new AgentLoopService(new DemoLlmService(0), registry);
+  const demo = new DemoLlmService(0);
+  return new AgentLoopService(demo, demo, registry, true);
 }
 
 describe('DemoLlmService', () => {

@@ -232,7 +232,8 @@
 }
 
 .hq-lang,
-.hq-audio {
+.hq-audio,
+.hq-mode {
   padding: var(--space-1) var(--space-2);
   border: 1px solid transparent;
   border-radius: var(--radius-card);
@@ -256,6 +257,26 @@
   // Comfortable touch target once the buttons fall into the flow.
   @media (max-width: mixins.$bp-compact) {
     padding: var(--space-2) var(--space-3);
+  }
+}
+
+// Demo mode reads as a deliberate off-live state — brass, not phosphor.
+.hq-mode--demo {
+  &:hover,
+  &[aria-pressed='true'] {
+    border-color: var(--gold-dim);
+    color: var(--gold);
+  }
+}
+
+// Locked to demo (no live brain configured): still legible, but inert.
+.hq-mode:disabled {
+  cursor: not-allowed;
+  opacity: 0.75;
+
+  &:hover {
+    border-color: var(--gold-dim);
+    color: var(--gold);
   }
 }
 

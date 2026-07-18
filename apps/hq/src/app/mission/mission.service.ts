@@ -27,8 +27,8 @@ export class MissionService {
   /** Bumped when a mission ends — history views reload on it. */
   readonly finishedCount = signal(0);
 
-  start(): void {
-    const body: StartMissionRequestDto = { type: 'duplicate-hunt' };
+  start(demo = false): void {
+    const body: StartMissionRequestDto = { type: 'duplicate-hunt', demo };
     this.launch(
       this.http.post<StartMissionResponseDto>('/api/missions', body),
       'errStartMission',
@@ -37,9 +37,10 @@ export class MissionService {
   }
 
   /** Uploads a PDF and follows the extraction mission it starts. */
-  startExtraction(file: File): void {
+  startExtraction(file: File, demo = false): void {
     const form = new FormData();
     form.append('file', file, file.name);
+    form.append('demo', String(demo));
     this.launch(
       this.http.post<StartMissionResponseDto>('/api/missions/extract', form),
       'errDossierRejected',

@@ -48,25 +48,28 @@ export class MissionsService {
   async start(
     type: MissionType,
     ownerId: string,
+    demo = false,
   ): Promise<StartMissionResponseDto> {
     const brief = MISSION_BRIEFS[type];
     if (!brief) {
       throw new NotFoundException(`Unknown mission type: ${String(type)}`);
     }
-    return this.launch(type, brief, ownerId);
+    return this.launch(type, brief, ownerId, demo);
   }
 
   async startExtraction(
     document: MissionDocument,
     ownerId: string,
+    demo = false,
   ): Promise<StartMissionResponseDto> {
-    return this.launch('extraction', extractionBrief(document), ownerId);
+    return this.launch('extraction', extractionBrief(document), ownerId, demo);
   }
 
   private async launch(
     type: MissionType,
     brief: MissionBrief,
     ownerId: string,
+    demo: boolean,
   ): Promise<StartMissionResponseDto> {
     const run: MissionRun = {
       id: randomUUID(),
@@ -96,7 +99,7 @@ export class MissionsService {
     };
 
     void this.agentLoop
-      .run({ missionId: run.id, code: run.code, ...brief }, emit)
+      .run({ missionId: run.id, code: run.code, ...brief }, emit, { demo })
       .catch((err: unknown) => {
         emit({
           type: 'error',

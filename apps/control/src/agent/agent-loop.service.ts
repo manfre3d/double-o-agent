@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import type {
   BriefingEvent,
   DebriefEvent,
@@ -9,7 +9,8 @@ import type {
 } from '@double-o/shared';
 import { GadgetRegistry } from '../gadgets/gadget.registry';
 import { MissionContext, MissionDocument } from '../gadgets/gadget.interface';
-import { LlmService } from './llm.service';
+import { LLM_LIVE_AVAILABLE, LlmService } from './llm.service';
+import { DemoLlmService } from './demo-llm.service';
 import { ChatMessage } from './agent.types';
 
 type Draft<T> = Omit<T, 'missionId' | 'seq' | 'at'>;
@@ -53,10 +54,18 @@ Rules:
 export class AgentLoopService {
   constructor(
     private readonly llm: LlmService,
+    private readonly demo: DemoLlmService,
     private readonly registry: GadgetRegistry,
+    @Inject(LLM_LIVE_AVAILABLE) private readonly liveAvailable: boolean,
   ) {}
 
-  async run(spec: MissionRunSpec, emit: EmitFn): Promise<void> {
+  async run(
+    spec: MissionRunSpec,
+    emit: EmitFn,
+    opts: { demo?: boolean } = {},
+  ): Promise<void> {
+    // Honest fallback: without a live brain, every run is demo regardless of the flag.
+    const brain = opts.demo || !this.liveAvailable ? this.demo : this.llm;
     emit({
       type: 'briefing',
       code: spec.code,
@@ -77,7 +86,7 @@ export class AgentLoopService {
 
     try {
       for (let turn = 0; turn < MAX_TURNS; turn++) {
-        const reply = await this.llm.chat(messages, tools);
+        const reply = await brain.chat(messages, tools);
 
         if (reply.toolCalls.length === 0) {
           emit({

@@ -69,7 +69,14 @@ function buildLoop(llm: LlmService, batch?: InvoiceDto[]): AgentLoopService {
     new ReadDocumentGadget(),
     new RecordInvoiceGadget(),
   );
-  return new AgentLoopService(llm, registry);
+  // Q Branch scores whatever brain the module resolved; run it directly (no
+  // per-run demo override), passing it as both slots with liveAvailable=true.
+  return new AgentLoopService(
+    llm,
+    llm as unknown as DemoLlmService,
+    registry,
+    true,
+  );
 }
 
 function missionSpec(kase: GoldenCase, sequence: number): MissionRunSpec {

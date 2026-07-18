@@ -19,23 +19,22 @@ const SAMPLE_EXTRACTED = {
 };
 
 function build() {
-  const fakeLoop = {
-    run: (spec: MissionRunSpec, emit: EmitFn) => {
-      emit({
-        type: 'briefing',
-        code: spec.code,
-        title: spec.title,
-        objective: spec.objective,
-      });
-      emit({
-        type: 'debrief',
-        text: 'Fine.',
-        flagged: [],
-        ...(spec.document ? { extracted: SAMPLE_EXTRACTED } : {}),
-      });
-      return Promise.resolve();
-    },
-  } as AgentLoopService;
+  const run = jest.fn((spec: MissionRunSpec, emit: EmitFn) => {
+    emit({
+      type: 'briefing',
+      code: spec.code,
+      title: spec.title,
+      objective: spec.objective,
+    });
+    emit({
+      type: 'debrief',
+      text: 'Fine.',
+      flagged: [],
+      ...(spec.document ? { extracted: SAMPLE_EXTRACTED } : {}),
+    });
+    return Promise.resolve();
+  });
+  const fakeLoop = { run } as unknown as AgentLoopService;
 
   const repo = {
     create: jest.fn().mockResolvedValue(undefined),
@@ -58,6 +57,7 @@ function build() {
       repo as unknown as MissionsRepository,
     ),
     repo,
+    run,
   };
 }
 
@@ -120,6 +120,41 @@ describe('MissionsService', () => {
       flagged: [],
       extracted: SAMPLE_EXTRACTED,
     });
+  });
+
+  it('defaults to live and forwards an explicit demo flag to the agent loop', async () => {
+    const { service, run } = build();
+
+    await service.start('duplicate-hunt', OWNER);
+    expect(run).toHaveBeenLastCalledWith(
+      expect.anything(),
+      expect.any(Function),
+      {
+        demo: false,
+      },
+    );
+
+    await service.start('duplicate-hunt', OWNER, true);
+    expect(run).toHaveBeenLastCalledWith(
+      expect.anything(),
+      expect.any(Function),
+      {
+        demo: true,
+      },
+    );
+
+    await service.startExtraction(
+      { filename: 'f.pdf', text: 'x' },
+      OWNER,
+      true,
+    );
+    expect(run).toHaveBeenLastCalledWith(
+      expect.anything(),
+      expect.any(Function),
+      {
+        demo: true,
+      },
+    );
   });
 
   it('scopes a live stream to its owner — another session gets NotFound', async () => {

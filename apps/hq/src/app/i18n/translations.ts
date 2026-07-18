@@ -9,6 +9,10 @@ const en = {
   audioOff: 'Audio: off',
   langLabelPrefix: 'Language',
   switchLanguage: 'Switch language',
+  modeLabelPrefix: 'Mode',
+  modeLive: 'Live',
+  modeDemo: 'Demo',
+  modeToggleLabel: 'Switch between live and demo missions',
 
   // Control status
   controlStatusTitle: 'Control status',
@@ -20,6 +24,7 @@ const en = {
   missionIntro:
     `Two demo missions. Launch one and watch the agent work in real time, one step at a time.`,
   demoTag: 'Demo',
+  liveTag: 'Live',
   missionHuntTitle: 'Hunt for duplicate invoices',
   missionHuntDesc:
     `The agent scans a ready-made set of 10 sample invoices and flags the ones entered twice. Nothing to set up. Just press start.`,
@@ -115,6 +120,10 @@ const it: Record<TranslationKey, string> = {
   audioOff: 'Audio: silenziato',
   langLabelPrefix: 'Lingua',
   switchLanguage: 'Cambia lingua',
+  modeLabelPrefix: 'Modalità',
+  modeLive: 'Dal vivo',
+  modeDemo: 'Demo',
+  modeToggleLabel: 'Alterna missioni dal vivo e dimostrative',
 
   controlStatusTitle: 'Stato Control',
   controlStatusError: 'Nessuna risposta da Control.',
@@ -124,6 +133,7 @@ const it: Record<TranslationKey, string> = {
   missionIntro:
     `Due missioni dimostrative. Avviane una e osserva l'agente lavorare in tempo reale, un passo alla volta.`,
   demoTag: 'Demo',
+  liveTag: 'Dal vivo',
   missionHuntTitle: 'Caccia alle fatture doppie',
   missionHuntDesc:
     `L'agente esamina una serie pronta di 10 fatture di esempio e segnala quelle inserite due volte. Niente da preparare: basta premere avvia.`,

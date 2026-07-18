@@ -54,7 +54,7 @@ export class MissionsController {
     @Body() body: StartMissionRequestDto,
     @OwnerId() ownerId: string,
   ): Promise<StartMissionResponseDto> {
-    return this.missions.start(body.type, ownerId);
+    return this.missions.start(body.type, ownerId, body.demo ?? false);
   }
 
   @Throttle({ default: { ttl: 60_000, limit: 5 } })
@@ -64,6 +64,8 @@ export class MissionsController {
   )
   async extract(
     @OwnerId() ownerId: string,
+    // Multipart text fields arrive as strings (no global ValidationPipe/transform).
+    @Body() body: { demo?: string },
     @UploadedFile() file?: Express.Multer.File,
   ): Promise<StartMissionResponseDto> {
     if (!file || !file.buffer.subarray(0, PDF_MAGIC.length).equals(PDF_MAGIC)) {
@@ -73,6 +75,7 @@ export class MissionsController {
     return this.missions.startExtraction(
       { filename: sanitizeFilename(file.originalname), text },
       ownerId,
+      body?.demo === 'true',
     );
   }
 
