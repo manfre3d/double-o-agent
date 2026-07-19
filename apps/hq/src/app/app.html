@@ -87,37 +87,58 @@
       <article class="mission-brief">
         <p class="mission-brief__tag">{{ effectiveMode() === 'live' ? language.t('liveTag') : language.t('demoTag') }}</p>
         <h3 class="mission-brief__title">{{ language.t('missionHuntTitle') }}</h3>
-        <p class="mission-brief__desc">{{ language.t('missionHuntDesc') }}</p>
+        <p class="mission-brief__desc">{{ effectiveMode() === 'live' ? language.t('missionHuntDescLive') : language.t('missionHuntDesc') }}</p>
+        @if (effectiveMode() === 'demo') {
+          <p class="mission-brief__note">{{ language.t('huntDemoNote') }}</p>
+        } @else if (batchEmpty()) {
+          <p class="mission-brief__note">{{ language.t('huntNeedsInvoices') }}</p>
+        }
         <button
           type="button"
           class="mission-launch"
           (click)="mission.start(demoMode())"
-          [disabled]="mission.running()"
+          [disabled]="mission.running() || (effectiveMode() === 'live' && (batchEmpty() || mission.uploading()))"
         >
           {{ mission.running() ? language.t('missionRunning') : language.t('startMission') }}
         </button>
       </article>
-      <article class="mission-brief">
-        <p class="mission-brief__tag">{{ effectiveMode() === 'live' ? language.t('liveTag') : language.t('demoTag') }}</p>
-        <h3 class="mission-brief__title">{{ language.t('missionDossierTitle') }}</h3>
-        <p class="mission-brief__desc">{{ language.t('missionDossierDesc') }}</p>
-        <button
-          type="button"
-          class="mission-launch mission-launch--dossier"
-          (click)="dossierInput.click()"
-          [disabled]="mission.running()"
-        >
-          {{ mission.running() ? language.t('missionRunning') : language.t('submitDossier') }}
-        </button>
-        <input
-          #dossierInput
-          type="file"
-          accept="application/pdf"
-          hidden
-          (change)="onDossierSelected(dossierInput)"
-        />
-      </article>
+      @if (effectiveMode() === 'live') {
+        <article class="mission-brief">
+          <p class="mission-brief__tag">{{ language.t('liveTag') }}</p>
+          <h3 class="mission-brief__title">{{ language.t('addInvoicesTitle') }}</h3>
+          <p class="mission-brief__desc">{{ language.t('addInvoicesDesc') }}</p>
+          <button
+            type="button"
+            class="mission-launch mission-launch--dossier"
+            (click)="invoicesInput.click()"
+            [disabled]="mission.uploading()"
+          >
+            {{ mission.uploading() ? language.t('uploadingInvoices') : language.t('addInvoicesButton') }}
+          </button>
+          <input
+            #invoicesInput
+            type="file"
+            accept="application/pdf"
+            multiple
+            hidden
+            (change)="onInvoicesSelected(invoicesInput)"
+          />
+        </article>
+      }
     </div>
+    @if (effectiveMode() === 'live') {
+      @if (mission.uploadError(); as uploadError) {
+        <p class="error-frame mission-error-text">{{ language.t(uploadError) }}</p>
+      }
+      @if (mission.uploadResult(); as result) {
+        <p class="mission-processing">{{ language.t('uploadSummary', { added: result.added, skipped: result.skipped.length }) }}</p>
+      }
+      <app-invoice-batch
+        [invoices]="batch.value()"
+        [loading]="batch.isLoading()"
+        [failed]="!!batch.error()"
+      />
+    }
     @if (mission.linkError(); as error) {
       <div class="error-frame">
         <p class="mission-error-eyebrow">{{ language.t('transmissionInterrupted') }}</p>

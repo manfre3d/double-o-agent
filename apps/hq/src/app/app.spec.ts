@@ -41,6 +41,8 @@ describe('App', () => {
     http.expectOne('/api/status').flush(report);
     http.expectOne('/api/missions').flush([]);
     http.expectOne('/api/missions/analytics').flush(emptyAnalytics);
+    // Live mode also fetches the invoice batch — drain it so the app settles.
+    http.match('/api/invoices').forEach((req) => req.flush([]));
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;
@@ -75,6 +77,8 @@ describe('App', () => {
     http.expectOne('/api/status').flush(report);
     http.expectOne('/api/missions').flush([]);
     http.expectOne('/api/missions/analytics').flush(emptyAnalytics);
+    // Live mode also fetches the invoice batch — drain it so the app settles.
+    http.match('/api/invoices').forEach((req) => req.flush([]));
     await fixture.whenStable();
 
     const compiled = fixture.nativeElement as HTMLElement;

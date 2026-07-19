@@ -2,14 +2,15 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { MissionsRepository } from './missions.repository';
+import { InvoiceArchiveRepository } from '../invoices/invoice-archive.repository';
 
 const DEFAULT_RETENTION_HOURS = 72;
 
 /**
  * Data minimization: missions (and, via cascade, their events — which embed the
- * uploaded document text) are swept once they age past the retention window, so
- * user-provided data does not linger indefinitely. Also clears the pre-isolation
- * `legacy` rows on first run.
+ * uploaded document text) and uploaded invoices are swept once they age past the
+ * retention window, so user-provided data does not linger indefinitely. Also
+ * clears the pre-isolation `legacy` rows on first run.
  */
 @Injectable()
 export class RetentionService {
@@ -18,6 +19,7 @@ export class RetentionService {
 
   constructor(
     private readonly repo: MissionsRepository,
+    private readonly invoices: InvoiceArchiveRepository,
     config: ConfigService,
   ) {
     const hours =
@@ -28,10 +30,13 @@ export class RetentionService {
   @Cron(CronExpression.EVERY_HOUR)
   async purge(): Promise<void> {
     const cutoff = new Date(Date.now() - this.retentionMs);
-    const removed = await this.repo.deleteOlderThan(cutoff);
-    if (removed > 0) {
+    const [missions, invoices] = await Promise.all([
+      this.repo.deleteOlderThan(cutoff),
+      this.invoices.deleteOlderThan(cutoff),
+    ]);
+    if (missions > 0 || invoices > 0) {
       this.logger.log(
-        `Retention: purged ${removed} mission(s) started before ${cutoff.toISOString()}`,
+        `Retention: purged ${missions} mission(s) and ${invoices} invoice(s) before ${cutoff.toISOString()}`,
       );
     }
   }

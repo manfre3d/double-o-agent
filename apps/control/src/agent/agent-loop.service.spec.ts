@@ -7,7 +7,7 @@ import { LlmService } from './llm.service';
 import { DemoLlmService } from './demo-llm.service';
 import { AssistantTurn } from './agent.types';
 import { GadgetRegistry } from '../gadgets/gadget.registry';
-import { InvoicesRepository } from '../gadgets/invoices.repository';
+import { SEED_INVOICES } from '../gadgets/invoices.repository';
 import { ListInvoicesGadget } from '../gadgets/list-invoices.gadget';
 import { CompareInvoicesGadget } from '../gadgets/compare-invoices.gadget';
 import { FlagInvoiceGadget } from '../gadgets/flag-invoice.gadget';
@@ -22,6 +22,7 @@ const spec: MissionRunSpec = {
   task: 'Begin the duplicate hunt.',
   instructions: 'Your mission: hunt duplicate invoices.',
   gadgets: ['list_invoices', 'compare_invoices', 'flag_invoice'],
+  invoices: SEED_INVOICES,
 };
 
 function makeChat(turns: AssistantTurn[] | Error) {
@@ -38,11 +39,10 @@ function buildLoop(
   turns: AssistantTurn[] | Error,
   opts: { demoTurns?: AssistantTurn[]; liveAvailable?: boolean } = {},
 ) {
-  const repo = new InvoicesRepository();
   const registry = new GadgetRegistry(
-    new ListInvoicesGadget(repo),
-    new CompareInvoicesGadget(repo),
-    new FlagInvoiceGadget(repo),
+    new ListInvoicesGadget(),
+    new CompareInvoicesGadget(),
+    new FlagInvoiceGadget(),
     new ReadDocumentGadget(),
     new RecordInvoiceGadget(),
   );

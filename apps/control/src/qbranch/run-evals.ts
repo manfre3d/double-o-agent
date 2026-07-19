@@ -2,7 +2,6 @@ import 'reflect-metadata';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import type { InvoiceDto } from '@double-o/shared';
 import { AgentModule } from '../agent/agent.module';
 import {
   AgentLoopService,
@@ -14,7 +13,7 @@ import { LlmService } from '../agent/llm.service';
 import { CompareInvoicesGadget } from '../gadgets/compare-invoices.gadget';
 import { FlagInvoiceGadget } from '../gadgets/flag-invoice.gadget';
 import { GadgetRegistry } from '../gadgets/gadget.registry';
-import { InvoicesRepository } from '../gadgets/invoices.repository';
+import { SEED_INVOICES } from '../gadgets/invoices.repository';
 import { ListInvoicesGadget } from '../gadgets/list-invoices.gadget';
 import { ReadDocumentGadget } from '../gadgets/read-document.gadget';
 import { RecordInvoiceGadget } from '../gadgets/record-invoice.gadget';
@@ -43,29 +42,11 @@ import { CaseVerdict, failedCase, scoreExtraction, scoreHunt } from './scoring';
 })
 class QBranchModule {}
 
-/** The production repository interface over a per-case golden batch. */
-class GoldenBatchRepository extends InvoicesRepository {
-  constructor(private readonly batch: InvoiceDto[]) {
-    super();
-  }
-
-  override findAll(): InvoiceDto[] {
-    return this.batch;
-  }
-
-  override findById(id: string): InvoiceDto | undefined {
-    return this.batch.find((invoice) => invoice.id === id);
-  }
-}
-
-function buildLoop(llm: LlmService, batch?: InvoiceDto[]): AgentLoopService {
-  const repo = batch
-    ? new GoldenBatchRepository(batch)
-    : new InvoicesRepository();
+function buildLoop(llm: LlmService): AgentLoopService {
   const registry = new GadgetRegistry(
-    new ListInvoicesGadget(repo),
-    new CompareInvoicesGadget(repo),
-    new FlagInvoiceGadget(repo),
+    new ListInvoicesGadget(),
+    new CompareInvoicesGadget(),
+    new FlagInvoiceGadget(),
     new ReadDocumentGadget(),
     new RecordInvoiceGadget(),
   );
@@ -91,6 +72,10 @@ function missionSpec(kase: GoldenCase, sequence: number): MissionRunSpec {
     missionId: `qbranch-${sequence}`,
     code: `Q-${String(sequence).padStart(3, '0')}`,
     ...brief,
+    // The hunt reads its batch from the run spec; a case without one uses the seed.
+    ...(kase.kind === 'duplicate-hunt'
+      ? { invoices: kase.batch ?? SEED_INVOICES }
+      : {}),
   };
 }
 
@@ -99,10 +84,7 @@ async function runCase(
   kase: GoldenCase,
   sequence: number,
 ): Promise<CaseVerdict> {
-  const loop = buildLoop(
-    llm,
-    kase.kind === 'duplicate-hunt' ? kase.batch : undefined,
-  );
+  const loop = buildLoop(llm);
   const events: MissionEventDraft[] = [];
   await loop.run(missionSpec(kase, sequence), (draft) => events.push(draft));
 

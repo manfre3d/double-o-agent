@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Gadget, GadgetOutcome } from './gadget.interface';
-import { InvoicesRepository } from './invoices.repository';
+import { Gadget, GadgetOutcome, MissionContext } from './gadget.interface';
 
 export type CompareInvoicesParams = {
   invoiceIdA: string;
@@ -24,11 +23,12 @@ export class CompareInvoicesGadget implements Gadget<CompareInvoicesParams> {
     additionalProperties: false,
   };
 
-  constructor(private readonly invoices: InvoicesRepository) {}
-
-  execute(params: CompareInvoicesParams): Promise<GadgetOutcome> {
-    const a = this.invoices.findById(params.invoiceIdA);
-    const b = this.invoices.findById(params.invoiceIdB);
+  execute(
+    params: CompareInvoicesParams,
+    ctx: MissionContext,
+  ): Promise<GadgetOutcome> {
+    const a = ctx.invoices.find((i) => i.id === params.invoiceIdA);
+    const b = ctx.invoices.find((i) => i.id === params.invoiceIdB);
     if (!a || !b) {
       const missing = [!a && params.invoiceIdA, !b && params.invoiceIdB]
         .filter(Boolean)

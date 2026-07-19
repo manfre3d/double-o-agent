@@ -6,6 +6,7 @@ import {
   type MissionEvent,
   type StartMissionRequestDto,
   type StartMissionResponseDto,
+  type UploadInvoicesResultDto,
 } from '@double-o/shared';
 import type { TranslationKey } from '../i18n/translations';
 
@@ -27,6 +28,13 @@ export class MissionService {
   /** Bumped when a mission ends — history views reload on it. */
   readonly finishedCount = signal(0);
 
+  /** Invoice-batch upload state (live mode only). */
+  readonly uploading = signal(false);
+  readonly uploadError = signal<TranslationKey | undefined>(undefined);
+  readonly uploadResult = signal<UploadInvoicesResultDto | undefined>(undefined);
+  /** Bumped when the batch changes (upload or clear) — the archive list reloads on it. */
+  readonly batchCount = signal(0);
+
   start(demo = false): void {
     const body: StartMissionRequestDto = { type: 'duplicate-hunt', demo };
     this.launch(
@@ -46,6 +54,43 @@ export class MissionService {
       'errDossierRejected',
       'preparingDossier',
     );
+  }
+
+  /** Uploads invoice PDFs into the session's live batch (no SSE — a plain POST). */
+  uploadInvoices(files: FileList): void {
+    if (this.uploading() || !files.length) {
+      return;
+    }
+    const form = new FormData();
+    for (const file of Array.from(files)) {
+      form.append('files', file, file.name);
+    }
+    this.uploading.set(true);
+    this.uploadError.set(undefined);
+    this.uploadResult.set(undefined);
+    this.http
+      .post<UploadInvoicesResultDto>('/api/invoices', form)
+      .subscribe({
+        next: (result) => {
+          this.uploading.set(false);
+          this.uploadResult.set(result);
+          this.batchCount.update((n) => n + 1);
+        },
+        error: () => {
+          this.uploading.set(false);
+          this.uploadError.set('errInvoicesUpload');
+        },
+      });
+  }
+
+  /** Empties the session's invoice batch. */
+  clearBatch(): void {
+    this.http.delete('/api/invoices').subscribe({
+      next: () => {
+        this.uploadResult.set(undefined);
+        this.batchCount.update((n) => n + 1);
+      },
+    });
   }
 
   private launch(

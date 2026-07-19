@@ -31,6 +31,26 @@ model Mission {
   @@index([ownerId, startedAt])
 }
 
+model Invoice {
+  id             String   @id
+  /// Anonymous session token that owns this invoice; every read is scoped to it.
+  ownerId        String
+  /// Per-owner, LLM-facing id shown in the hunt (INV-001…), like Mission.code.
+  code           String
+  number         String
+  counterparty   String
+  amount         Float
+  currency       String
+  /// ISO-8601 date string, as printed on the invoice.
+  issueDate      String
+  /// Original uploaded filename, shown in the batch list.
+  sourceFilename String?
+  createdAt      DateTime @default(now())
+
+  @@unique([ownerId, code])
+  @@index([ownerId, createdAt])
+}
+
 model MissionEvent {
   id        Int      @id @default(autoincrement())
   missionId String

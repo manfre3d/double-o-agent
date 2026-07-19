@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { Gadget, GadgetOutcome, MissionContext } from './gadget.interface';
-import { InvoicesRepository } from './invoices.repository';
 
 export type FlagInvoiceParams = {
   invoiceId: string;
@@ -27,13 +26,11 @@ export class FlagInvoiceGadget implements Gadget<FlagInvoiceParams> {
     additionalProperties: false,
   };
 
-  constructor(private readonly invoices: InvoicesRepository) {}
-
   execute(
     params: FlagInvoiceParams,
     ctx: MissionContext,
   ): Promise<GadgetOutcome> {
-    if (!this.invoices.findById(params.invoiceId)) {
+    if (!ctx.invoices.some((i) => i.id === params.invoiceId)) {
       return Promise.resolve({
         ok: false,
         error: `Unknown invoice id: ${params.invoiceId}`,

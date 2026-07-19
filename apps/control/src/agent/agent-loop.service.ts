@@ -4,6 +4,7 @@ import type {
   DebriefEvent,
   GadgetCallEvent,
   GadgetResultEvent,
+  InvoiceDto,
   MissionErrorEvent,
   ThinkingEvent,
 } from '@double-o/shared';
@@ -38,6 +39,8 @@ export interface MissionRunSpec {
   gadgets: string[];
   /** Uploaded document, attached to extraction missions. */
   document?: MissionDocument;
+  /** The batch a duplicate-hunt runs over (seed in demo, the owner's uploads in live). */
+  invoices?: InvoiceDto[];
 }
 
 const MAX_TURNS = 12;
@@ -76,6 +79,7 @@ export class AgentLoopService {
     const ctx: MissionContext = {
       missionId: spec.missionId,
       flagged: [],
+      invoices: spec.invoices ?? [],
       document: spec.document,
     };
     const tools = this.registry.toolDefinitions(spec.gadgets);

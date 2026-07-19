@@ -14,6 +14,8 @@ import {
   MissionEventDraft,
 } from '../agent/agent-loop.service';
 import { MissionDocument } from '../gadgets/gadget.interface';
+import { SEED_INVOICES } from '../gadgets/invoices.repository';
+import { InvoiceArchiveRepository } from '../invoices/invoice-archive.repository';
 import {
   extractionBrief,
   MISSION_BRIEFS,
@@ -43,6 +45,7 @@ export class MissionsService {
   constructor(
     private readonly agentLoop: AgentLoopService,
     private readonly repo: MissionsRepository,
+    private readonly invoices: InvoiceArchiveRepository,
   ) {}
 
   async start(
@@ -54,7 +57,11 @@ export class MissionsService {
     if (!brief) {
       throw new NotFoundException(`Unknown mission type: ${String(type)}`);
     }
-    return this.launch(type, brief, ownerId, demo);
+    // Demo hunts over the built-in seed; live hunts over the owner's uploads.
+    const invoices = demo
+      ? SEED_INVOICES
+      : await this.invoices.listByOwner(ownerId);
+    return this.launch(type, { ...brief, invoices }, ownerId, demo);
   }
 
   async startExtraction(

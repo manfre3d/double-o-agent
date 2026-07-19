@@ -468,6 +468,15 @@
   line-height: 1.55;
 }
 
+// A hint above the launch button (demo-batch note, or "add invoices first").
+.mission-brief__note {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--phosphor-dim);
+}
+
 .mission-brief .mission-launch {
   align-self: flex-start;
 }

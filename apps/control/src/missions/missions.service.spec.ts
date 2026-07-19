@@ -7,6 +7,8 @@ import {
   EmitFn,
   MissionRunSpec,
 } from '../agent/agent-loop.service';
+import { InvoiceArchiveRepository } from '../invoices/invoice-archive.repository';
+import { SEED_INVOICES } from '../gadgets/invoices.repository';
 
 const OWNER = 'owner-a';
 
@@ -51,13 +53,17 @@ function build() {
     }),
   };
 
+  const invoices = { listByOwner: jest.fn().mockResolvedValue([]) };
+
   return {
     service: new MissionsService(
       fakeLoop,
       repo as unknown as MissionsRepository,
+      invoices as unknown as InvoiceArchiveRepository,
     ),
     repo,
     run,
+    invoices,
   };
 }
 
@@ -155,6 +161,32 @@ describe('MissionsService', () => {
         demo: true,
       },
     );
+  });
+
+  it('hunts the owner batch in live mode and the seed batch in demo mode', async () => {
+    const { service, run, invoices } = build();
+    const ownerBatch = [
+      {
+        id: 'INV-001',
+        number: 'FT-1',
+        counterparty: 'Rossi S.r.l.',
+        amount: 100,
+        currency: 'EUR',
+        issueDate: '2026-06-18',
+      },
+    ];
+    invoices.listByOwner.mockResolvedValue(ownerBatch);
+
+    await service.start('duplicate-hunt', OWNER);
+    expect(invoices.listByOwner).toHaveBeenCalledWith(OWNER);
+    const liveSpec = run.mock.calls.at(-1)?.[0] as { invoices?: unknown };
+    expect(liveSpec.invoices).toEqual(ownerBatch);
+
+    invoices.listByOwner.mockClear();
+    await service.start('duplicate-hunt', OWNER, true);
+    expect(invoices.listByOwner).not.toHaveBeenCalled();
+    const demoSpec = run.mock.calls.at(-1)?.[0] as { invoices?: unknown };
+    expect(demoSpec.invoices).toBe(SEED_INVOICES);
   });
 
   it('scopes a live stream to its owner — another session gets NotFound', async () => {

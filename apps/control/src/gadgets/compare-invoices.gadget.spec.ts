@@ -1,10 +1,14 @@
 import { CompareInvoicesGadget } from './compare-invoices.gadget';
-import { InvoicesRepository } from './invoices.repository';
+import { SEED_INVOICES } from './invoices.repository';
 import { MissionContext } from './gadget.interface';
 
 describe('CompareInvoicesGadget', () => {
-  const gadget = new CompareInvoicesGadget(new InvoicesRepository());
-  const ctx: MissionContext = { missionId: 'm1', flagged: [] };
+  const gadget = new CompareInvoicesGadget();
+  const ctx: MissionContext = {
+    missionId: 'm1',
+    flagged: [],
+    invoices: SEED_INVOICES,
+  };
 
   it('matches the exact duplicate pair on every field', async () => {
     const outcome = await gadget.execute(

@@ -1,4 +1,4 @@
-import { InvoicesRepository } from '../gadgets/invoices.repository';
+import { SEED_INVOICES } from '../gadgets/invoices.repository';
 import { GOLDEN_CASES } from './golden';
 
 describe('golden set', () => {
@@ -8,7 +8,7 @@ describe('golden set', () => {
   });
 
   it('expects only invoice ids that exist in the case batch', () => {
-    const seededIds = new InvoicesRepository().findAll().map((i) => i.id);
+    const seededIds = SEED_INVOICES.map((i) => i.id);
     for (const kase of GOLDEN_CASES) {
       if (kase.kind !== 'duplicate-hunt') {
         continue;

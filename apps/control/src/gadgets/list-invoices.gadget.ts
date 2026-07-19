@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Gadget, GadgetOutcome } from './gadget.interface';
-import { InvoicesRepository } from './invoices.repository';
+import { Gadget, GadgetOutcome, MissionContext } from './gadget.interface';
 
 @Injectable()
 export class ListInvoicesGadget implements Gadget {
@@ -14,9 +13,11 @@ export class ListInvoicesGadget implements Gadget {
     additionalProperties: false,
   };
 
-  constructor(private readonly invoices: InvoicesRepository) {}
-
-  execute(): Promise<GadgetOutcome> {
-    return Promise.resolve({ ok: true, value: this.invoices.findAll() });
+  execute(
+    _params: Record<string, unknown>,
+    ctx: MissionContext,
+  ): Promise<GadgetOutcome> {
+    // Copy so list_invoices' returned value can't be mutated through the batch.
+    return Promise.resolve({ ok: true, value: [...ctx.invoices] });
   }
 }
