@@ -1,0 +1,33 @@
+<div class="batch-head">
+  <h3 class="section-eyebrow">{{ language.t('batchTitle') }}</h3>
+  @if (invoices()?.length) {
+    <button type="button" class="batch-clear" (click)="clear()">
+      {{ language.t('clearBatch') }}
+    </button>
+  }
+</div>
+
+@if (failed()) {
+  <p class="error-frame batch-error">{{ language.t('batchError') }}</p>
+} @else if (invoices(); as list) {
+  @if (!list.length) {
+    <p class="batch-empty">{{ language.t('batchEmpty') }}</p>
+  } @else {
+    <ul class="batch-list">
+      @for (inv of list; track inv.id) {
+        <li class="batch-row">
+          <span class="batch-id">{{ inv.id }}</span>
+          <span class="batch-number">{{ inv.number }}</span>
+          <span class="batch-party">{{ inv.counterparty }}</span>
+          <span class="batch-amount">{{ amount(inv) }}</span>
+          <span class="batch-date">{{ inv.issueDate | date: 'dd/MM/yyyy' }}</span>
+          @if (inv.sourceFilename) {
+            <span class="batch-file">{{ inv.sourceFilename }}</span>
+          }
+        </li>
+      }
+    </ul>
+  }
+} @else if (loading()) {
+  <p class="batch-note loading-cursor">{{ language.t('batchLoading') }}</p>
+}

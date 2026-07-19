@@ -9,6 +9,10 @@ const en = {
   audioOff: 'Audio: off',
   langLabelPrefix: 'Language',
   switchLanguage: 'Switch language',
+  modeLabelPrefix: 'Mode',
+  modeLive: 'Live',
+  modeDemo: 'Demo',
+  modeToggleLabel: 'Switch between live and demo missions',
 
   // Control status
   controlStatusTitle: 'Control status',
@@ -20,9 +24,12 @@ const en = {
   missionIntro:
     `Two demo missions. Launch one and watch the agent work in real time, one step at a time.`,
   demoTag: 'Demo',
+  liveTag: 'Live',
   missionHuntTitle: 'Hunt for duplicate invoices',
   missionHuntDesc:
     `The agent scans a ready-made set of 10 sample invoices and flags the ones entered twice. Nothing to set up. Just press start.`,
+  missionHuntDescLive:
+    `The agent scans the invoices you uploaded and flags any entered twice, one comparison at a time.`,
   missionDossierTitle: 'Read your own invoice',
   missionDossierDesc:
     `Upload an invoice PDF. The agent reads it and pulls out the supplier, number, amount, and date.`,
@@ -32,6 +39,22 @@ const en = {
   preparingMission: 'Establishing secure link',
   preparingDossier: 'Decrypting the dossier',
   transmissionInterrupted: 'Transmission interrupted',
+
+  // Invoice batch (live hunt)
+  addInvoicesTitle: 'Add your invoices',
+  addInvoicesDesc:
+    'Upload your invoice PDFs. The agent reads each one and adds it to your batch to hunt for duplicates.',
+  addInvoicesButton: 'Add invoices (PDF)',
+  uploadingInvoices: 'Reading your invoices…',
+  errInvoicesUpload: 'Upload failed: needs live mode and readable PDF invoices.',
+  uploadSummary: '{added} added · {skipped} skipped',
+  huntNeedsInvoices: 'Add at least one invoice to hunt.',
+  huntDemoNote: 'Demo hunts a built-in sample batch of 10 invoices.',
+  batchTitle: 'Your invoice batch',
+  batchEmpty: 'No invoices yet. Add some to hunt for duplicates.',
+  batchError: 'Could not load your batch.',
+  batchLoading: 'Retrieving your batch',
+  clearBatch: 'Clear batch',
 
   // MissionService link errors
   errStartMission: 'Could not reach Control.',
@@ -115,6 +138,10 @@ const it: Record<TranslationKey, string> = {
   audioOff: 'Audio: silenziato',
   langLabelPrefix: 'Lingua',
   switchLanguage: 'Cambia lingua',
+  modeLabelPrefix: 'Modalità',
+  modeLive: 'Dal vivo',
+  modeDemo: 'Demo',
+  modeToggleLabel: 'Alterna missioni dal vivo e dimostrative',
 
   controlStatusTitle: 'Stato Control',
   controlStatusError: 'Nessuna risposta da Control.',
@@ -124,9 +151,11 @@ const it: Record<TranslationKey, string> = {
   missionIntro:
     `Due missioni dimostrative. Avviane una e osserva l'agente lavorare in tempo reale, un passo alla volta.`,
   demoTag: 'Demo',
+  liveTag: 'Dal vivo',
   missionHuntTitle: 'Caccia alle fatture doppie',
   missionHuntDesc:
     `L'agente esamina una serie pronta di 10 fatture di esempio e segnala quelle inserite due volte. Niente da preparare: basta premere avvia.`,
+  missionHuntDescLive: `L'agente esamina le fatture che hai caricato e segnala quelle inserite due volte, un confronto alla volta.`,
   missionDossierTitle: 'Leggi la tua fattura',
   missionDossierDesc:
     `Carica una fattura in PDF. L'agente la legge ed estrae fornitore, numero, importo e data.`,
@@ -136,6 +165,21 @@ const it: Record<TranslationKey, string> = {
   preparingMission: 'Collegamento sicuro in corso',
   preparingDossier: 'Decrittazione del dossier',
   transmissionInterrupted: 'Trasmissione interrotta',
+
+  addInvoicesTitle: 'Aggiungi le tue fatture',
+  addInvoicesDesc: `Carica le tue fatture in PDF. L'agente legge ciascuna e la aggiunge al tuo lotto per dare la caccia ai doppioni.`,
+  addInvoicesButton: 'Aggiungi fatture (PDF)',
+  uploadingInvoices: 'Lettura delle tue fatture…',
+  errInvoicesUpload:
+    'Caricamento fallito: serve la modalità dal vivo e PDF di fatture leggibili.',
+  uploadSummary: '{added} aggiunte · {skipped} scartate',
+  huntNeedsInvoices: 'Aggiungi almeno una fattura per la caccia.',
+  huntDemoNote: 'La dimostrazione usa un lotto di esempio di 10 fatture.',
+  batchTitle: 'Il tuo lotto di fatture',
+  batchEmpty: 'Ancora nessuna fattura. Aggiungine per dare la caccia ai doppioni.',
+  batchError: 'Impossibile caricare il tuo lotto.',
+  batchLoading: 'Recupero del tuo lotto',
+  clearBatch: 'Svuota il lotto',
 
   errStartMission: 'Impossibile contattare Control.',
   errDossierRejected: 'Dossier respinto: serve un PDF con testo leggibile.',

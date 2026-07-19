@@ -23,22 +23,11 @@ import type {
 import { MissionsService } from './missions.service';
 import { PdfTextService } from './pdf-text.service';
 import { OwnerId } from '../session/owner-id.decorator';
-
-const MAX_PDF_BYTES = 10 * 1024 * 1024;
-/** Every PDF starts with this signature; the client-sent mimetype is not trusted. */
-const PDF_MAGIC = Buffer.from('%PDF-');
-
-/** The upload filename is untrusted input (shown in the UI, fed to the LLM brief):
- *  drop path separators and control chars, and cap the length. */
-function sanitizeFilename(name: string): string {
-  return (
-    name
-      .replace(/[/\\]/g, '_')
-      .replace(/\p{Cc}/gu, ' ')
-      .trim()
-      .slice(0, 100) || 'dossier.pdf'
-  );
-}
+import {
+  isPdf,
+  MAX_PDF_BYTES,
+  sanitizeFilename,
+} from '../common/pdf-upload.util';
 
 @Controller('missions')
 export class MissionsController {
@@ -54,7 +43,7 @@ export class MissionsController {
     @Body() body: StartMissionRequestDto,
     @OwnerId() ownerId: string,
   ): Promise<StartMissionResponseDto> {
-    return this.missions.start(body.type, ownerId);
+    return this.missions.start(body.type, ownerId, body.demo ?? false);
   }
 
   @Throttle({ default: { ttl: 60_000, limit: 5 } })
@@ -64,15 +53,18 @@ export class MissionsController {
   )
   async extract(
     @OwnerId() ownerId: string,
+    // Multipart text fields arrive as strings (no global ValidationPipe/transform).
+    @Body() body: { demo?: string },
     @UploadedFile() file?: Express.Multer.File,
   ): Promise<StartMissionResponseDto> {
-    if (!file || !file.buffer.subarray(0, PDF_MAGIC.length).equals(PDF_MAGIC)) {
+    if (!file || !isPdf(file.buffer)) {
       throw new BadRequestException('Upload a valid PDF in the "file" field.');
     }
     const text = await this.pdfText.extract(file.buffer);
     return this.missions.startExtraction(
       { filename: sanitizeFilename(file.originalname), text },
       ownerId,
+      body?.demo === 'true',
     );
   }
 

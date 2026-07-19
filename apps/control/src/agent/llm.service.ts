@@ -20,6 +20,22 @@ export abstract class LlmService {
   ): Promise<AssistantTurn>;
 }
 
+/** The placeholder shipped in .env.example — not a usable key. */
+export const PLACEHOLDER_KEY = 'sk-replace-me';
+
+/** DI token for a boolean: whether a live OpenAI brain is configured. */
+export const LLM_LIVE_AVAILABLE = 'LLM_LIVE_AVAILABLE';
+
+/**
+ * Single source of truth for whether live missions are possible. False when the
+ * key is missing/placeholder or when DEMO_MODE forces the scripted brain globally.
+ */
+export function liveLlmAvailable(config: ConfigService): boolean {
+  const key = config.get<string>('OPENAI_API_KEY');
+  const forced = config.get<string>('DEMO_MODE') === 'true';
+  return !forced && !!key && key !== PLACEHOLDER_KEY;
+}
+
 /**
  * The only class in the codebase that imports the OpenAI SDK.
  * Swapping providers means rewriting this class and nothing else.

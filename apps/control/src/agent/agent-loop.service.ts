@@ -1,15 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import type {
   BriefingEvent,
   DebriefEvent,
   GadgetCallEvent,
   GadgetResultEvent,
+  InvoiceDto,
   MissionErrorEvent,
   ThinkingEvent,
 } from '@double-o/shared';
 import { GadgetRegistry } from '../gadgets/gadget.registry';
 import { MissionContext, MissionDocument } from '../gadgets/gadget.interface';
-import { LlmService } from './llm.service';
+import { LLM_LIVE_AVAILABLE, LlmService } from './llm.service';
+import { DemoLlmService } from './demo-llm.service';
 import { ChatMessage } from './agent.types';
 
 type Draft<T> = Omit<T, 'missionId' | 'seq' | 'at'>;
@@ -37,6 +39,8 @@ export interface MissionRunSpec {
   gadgets: string[];
   /** Uploaded document, attached to extraction missions. */
   document?: MissionDocument;
+  /** The batch a duplicate-hunt runs over (seed in demo, the owner's uploads in live). */
+  invoices?: InvoiceDto[];
 }
 
 const MAX_TURNS = 12;
@@ -53,10 +57,18 @@ Rules:
 export class AgentLoopService {
   constructor(
     private readonly llm: LlmService,
+    private readonly demo: DemoLlmService,
     private readonly registry: GadgetRegistry,
+    @Inject(LLM_LIVE_AVAILABLE) private readonly liveAvailable: boolean,
   ) {}
 
-  async run(spec: MissionRunSpec, emit: EmitFn): Promise<void> {
+  async run(
+    spec: MissionRunSpec,
+    emit: EmitFn,
+    opts: { demo?: boolean } = {},
+  ): Promise<void> {
+    // Honest fallback: without a live brain, every run is demo regardless of the flag.
+    const brain = opts.demo || !this.liveAvailable ? this.demo : this.llm;
     emit({
       type: 'briefing',
       code: spec.code,
@@ -67,6 +79,7 @@ export class AgentLoopService {
     const ctx: MissionContext = {
       missionId: spec.missionId,
       flagged: [],
+      invoices: spec.invoices ?? [],
       document: spec.document,
     };
     const tools = this.registry.toolDefinitions(spec.gadgets);
@@ -77,7 +90,7 @@ export class AgentLoopService {
 
     try {
       for (let turn = 0; turn < MAX_TURNS; turn++) {
-        const reply = await this.llm.chat(messages, tools);
+        const reply = await brain.chat(messages, tools);
 
         if (reply.toolCalls.length === 0) {
           emit({

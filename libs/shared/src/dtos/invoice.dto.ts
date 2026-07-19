@@ -4,9 +4,21 @@ export interface InvoiceDto {
   number: string;
   counterparty: string;
   amount: number;
-  currency: 'EUR';
+  /** ISO-4217 code, e.g. 'EUR'. The seed batch is EUR; uploaded invoices may differ. */
+  currency: string;
   /** ISO-8601 date. */
   issueDate: string;
+}
+
+/** An invoice in a session's uploaded archive; adds the source filename for display. */
+export interface StoredInvoiceDto extends InvoiceDto {
+  sourceFilename?: string;
+}
+
+/** Result of a multi-file invoice upload: how many were stored vs skipped and why. */
+export interface UploadInvoicesResultDto {
+  added: number;
+  skipped: { filename: string; reason: string }[];
 }
 
 export interface FlaggedInvoiceDto {

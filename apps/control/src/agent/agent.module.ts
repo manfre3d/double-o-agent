@@ -1,35 +1,45 @@
 import { Logger, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GadgetsModule } from '../gadgets/gadgets.module';
-import { LlmService, OpenAiLlmService } from './llm.service';
+import {
+  LLM_LIVE_AVAILABLE,
+  liveLlmAvailable,
+  LlmService,
+  OpenAiLlmService,
+} from './llm.service';
 import { DemoLlmService } from './demo-llm.service';
 import { AgentLoopService } from './agent-loop.service';
-
-/** The placeholder shipped in .env.example — not a usable key. */
-const PLACEHOLDER_KEY = 'sk-replace-me';
 
 @Module({
   imports: [GadgetsModule],
   providers: [
+    // Always available so a live-configured run can still be launched in demo
+    // mode. Built via factory: its only ctor param is a primitive with a
+    // default, which Nest can't resolve by DI.
+    { provide: DemoLlmService, useFactory: () => new DemoLlmService() },
     {
-      provide: LlmService,
+      provide: LLM_LIVE_AVAILABLE,
       inject: [ConfigService],
-      useFactory: (config: ConfigService): LlmService => {
-        const key = config.get<string>('OPENAI_API_KEY');
-        const forced = config.get<string>('DEMO_MODE') === 'true';
-        if (forced || !key || key === PLACEHOLDER_KEY) {
+      useFactory: (config: ConfigService): boolean => liveLlmAvailable(config),
+    },
+    {
+      // Default brain: live when a key is configured, else the demo singleton.
+      provide: LlmService,
+      inject: [ConfigService, DemoLlmService],
+      useFactory: (config: ConfigService, demo: DemoLlmService): LlmService => {
+        if (!liveLlmAvailable(config)) {
           new Logger('AgentModule').warn(
-            forced
+            config.get<string>('DEMO_MODE') === 'true'
               ? 'DEMO_MODE=true — missions run on the scripted demo brain.'
               : 'No usable OPENAI_API_KEY — missions run on the scripted demo brain. Set the key in .env for live missions.',
           );
-          return new DemoLlmService();
+          return demo;
         }
         return new OpenAiLlmService(config);
       },
     },
     AgentLoopService,
   ],
-  exports: [AgentLoopService],
+  exports: [AgentLoopService, LLM_LIVE_AVAILABLE],
 })
 export class AgentModule {}

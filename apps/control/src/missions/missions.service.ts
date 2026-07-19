@@ -14,6 +14,8 @@ import {
   MissionEventDraft,
 } from '../agent/agent-loop.service';
 import { MissionDocument } from '../gadgets/gadget.interface';
+import { SEED_INVOICES } from '../gadgets/invoices.repository';
+import { InvoiceArchiveRepository } from '../invoices/invoice-archive.repository';
 import {
   extractionBrief,
   MISSION_BRIEFS,
@@ -43,30 +45,38 @@ export class MissionsService {
   constructor(
     private readonly agentLoop: AgentLoopService,
     private readonly repo: MissionsRepository,
+    private readonly invoices: InvoiceArchiveRepository,
   ) {}
 
   async start(
     type: MissionType,
     ownerId: string,
+    demo = false,
   ): Promise<StartMissionResponseDto> {
     const brief = MISSION_BRIEFS[type];
     if (!brief) {
       throw new NotFoundException(`Unknown mission type: ${String(type)}`);
     }
-    return this.launch(type, brief, ownerId);
+    // Demo hunts over the built-in seed; live hunts over the owner's uploads.
+    const invoices = demo
+      ? SEED_INVOICES
+      : await this.invoices.listByOwner(ownerId);
+    return this.launch(type, { ...brief, invoices }, ownerId, demo);
   }
 
   async startExtraction(
     document: MissionDocument,
     ownerId: string,
+    demo = false,
   ): Promise<StartMissionResponseDto> {
-    return this.launch('extraction', extractionBrief(document), ownerId);
+    return this.launch('extraction', extractionBrief(document), ownerId, demo);
   }
 
   private async launch(
     type: MissionType,
     brief: MissionBrief,
     ownerId: string,
+    demo: boolean,
   ): Promise<StartMissionResponseDto> {
     const run: MissionRun = {
       id: randomUUID(),
@@ -96,7 +106,7 @@ export class MissionsService {
     };
 
     void this.agentLoop
-      .run({ missionId: run.id, code: run.code, ...brief }, emit)
+      .run({ missionId: run.id, code: run.code, ...brief }, emit, { demo })
       .catch((err: unknown) => {
         emit({
           type: 'error',

@@ -8,7 +8,7 @@ A 007-parody web app whose "secret agent" is an AI agent running small-business 
 
 - **Node 24+** (npm workspaces do the monorepo wiring; CI runs on Node 24)
 - **Docker** with the daemon running (Postgres lives in a compose container)
-- **OpenAI API key** — optional; without one the app boots in demo mode (see below)
+- **OpenAI API key** — optional; without one every mission runs in demo mode, and with one visitors can still switch to demo per mission (see below)
 
 ## First run
 
@@ -30,11 +30,12 @@ Open <http://localhost:4200> (the dev server proxies `/api` to Control), press *
 
 ## Demo mode vs live missions
 
-Control picks its brain at boot:
+Each mission runs on one of two brains, chosen per launch from the **LIVE / DEMO** toggle in HQ's header:
 
-- `OPENAI_API_KEY` missing or left as the `sk-replace-me` placeholder → **demo mode**: missions replay on a scripted brain, deterministic and free — no API calls. The debrief tells you it's a training exercise.
-- A real key in `.env` → **live missions** against `OPENAI_MODEL` (default `gpt-4o-mini`).
-- `DEMO_MODE=true` forces demo mode even with a real key.
+- **Live** — the real agent against `OPENAI_MODEL` (default `gpt-4o-mini`). The default when a key is configured.
+- **Demo** — a scripted brain that replays a fixed mission, deterministic and free, with no API calls. The debrief tells you it's a training exercise. Always available, so any visitor can preview the end result without spending credits.
+
+If `OPENAI_API_KEY` is missing or left as the `sk-replace-me` placeholder, live is impossible: the toggle locks to demo and every mission runs scripted. `DEMO_MODE=true` forces demo globally even with a real key. Control exposes which is possible via `llmAvailable` on `/api/status`, so HQ can lock the toggle honestly.
 
 ## Everyday commands (repo root)
 
@@ -57,7 +58,7 @@ npm run eval           # Q Branch quality control (see below)
 Production is a single Render web service: Control serves the API **and** HQ's built bundle from the same origin (no CORS, no second deploy). The database is a free [Neon](https://neon.tech) Postgres. Everything is declared in [`render.yaml`](./render.yaml).
 
 1. Create a Neon project and copy its Postgres connection string.
-2. On Render: **New → Blueprint**, connect this repo. When prompted, paste the Neon string as `DATABASE_URL`; leave `OPENAI_API_KEY` empty for demo mode or set a real key for live missions. `SESSION_COOKIE_SECRET` is generated automatically (`generateValue`) — nothing to paste; it keys the anonymous per-session cookie that isolates each visitor's missions.
+2. On Render: **New → Blueprint**, connect this repo. When prompted, paste the Neon string as `DATABASE_URL`; leave `OPENAI_API_KEY` empty to run every mission in demo mode, or set a real key so visitors can run live missions (they can still switch to demo per mission). `SESSION_COOKIE_SECRET` is generated automatically (`generateValue`) — nothing to paste; it keys the anonymous per-session cookie that isolates each visitor's missions.
 3. Done. Every push to `main` redeploys automatically **after** the GitHub Actions run is green (`autoDeployTrigger: checksPass`); migrations run on boot (`prisma migrate deploy`).
 
 Free-tier note: the service spins down when idle — the first visit after a quiet spell takes up to a minute to wake.

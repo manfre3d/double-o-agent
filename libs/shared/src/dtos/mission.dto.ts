@@ -6,6 +6,8 @@ export type MissionStatus = 'running' | 'completed' | 'failed';
 
 export interface StartMissionRequestDto {
   type: MissionType;
+  /** Force the scripted demo brain even when a live key is present. */
+  demo?: boolean;
 }
 
 export interface StartMissionResponseDto {

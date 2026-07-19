@@ -1,7 +1,7 @@
 import { DemoLlmService } from './demo-llm.service';
 import { AgentLoopService, MissionEventDraft } from './agent-loop.service';
 import { GadgetRegistry } from '../gadgets/gadget.registry';
-import { InvoicesRepository } from '../gadgets/invoices.repository';
+import { SEED_INVOICES } from '../gadgets/invoices.repository';
 import { ListInvoicesGadget } from '../gadgets/list-invoices.gadget';
 import { CompareInvoicesGadget } from '../gadgets/compare-invoices.gadget';
 import { FlagInvoiceGadget } from '../gadgets/flag-invoice.gadget';
@@ -9,15 +9,15 @@ import { ReadDocumentGadget } from '../gadgets/read-document.gadget';
 import { RecordInvoiceGadget } from '../gadgets/record-invoice.gadget';
 
 function buildLoop() {
-  const repo = new InvoicesRepository();
   const registry = new GadgetRegistry(
-    new ListInvoicesGadget(repo),
-    new CompareInvoicesGadget(repo),
-    new FlagInvoiceGadget(repo),
+    new ListInvoicesGadget(),
+    new CompareInvoicesGadget(),
+    new FlagInvoiceGadget(),
     new ReadDocumentGadget(),
     new RecordInvoiceGadget(),
   );
-  return new AgentLoopService(new DemoLlmService(0), registry);
+  const demo = new DemoLlmService(0);
+  return new AgentLoopService(demo, demo, registry, true);
 }
 
 describe('DemoLlmService', () => {
@@ -32,6 +32,7 @@ describe('DemoLlmService', () => {
         task: 'Begin the duplicate hunt.',
         instructions: 'Your mission: hunt duplicate invoices.',
         gadgets: ['list_invoices', 'compare_invoices', 'flag_invoice'],
+        invoices: SEED_INVOICES,
       },
       (draft) => events.push(draft),
     );

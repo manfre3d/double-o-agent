@@ -1,13 +1,13 @@
 import { FlagInvoiceGadget } from './flag-invoice.gadget';
-import { InvoicesRepository } from './invoices.repository';
+import { SEED_INVOICES } from './invoices.repository';
 import { MissionContext } from './gadget.interface';
 
 describe('FlagInvoiceGadget', () => {
-  const gadget = new FlagInvoiceGadget(new InvoicesRepository());
+  const gadget = new FlagInvoiceGadget();
   let ctx: MissionContext;
 
   beforeEach(() => {
-    ctx = { missionId: 'm1', flagged: [] };
+    ctx = { missionId: 'm1', flagged: [], invoices: SEED_INVOICES };
   });
 
   it('records the flag on the mission context', async () => {

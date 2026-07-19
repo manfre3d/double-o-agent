@@ -7,6 +7,8 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AgentModule } from './agent/agent.module';
+import { InvoicesModule } from './invoices/invoices.module';
 import { MissionsModule } from './missions/missions.module';
 import { SessionMiddleware } from './session/session.middleware';
 import { SessionThrottlerGuard } from './session/session-throttler.guard';
@@ -30,6 +32,9 @@ import { SessionThrottlerGuard } from './session/session-throttler.guard';
       rootPath: join(__dirname, '..', '..', 'hq', 'dist', 'hq', 'browser'),
       exclude: ['/api/{*splat}'],
     }),
+    // Provides LLM_LIVE_AVAILABLE for AppService's status report.
+    AgentModule,
+    InvoicesModule,
     MissionsModule,
   ],
   controllers: [AppController],

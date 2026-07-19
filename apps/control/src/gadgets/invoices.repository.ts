@@ -6,7 +6,7 @@ import type { InvoiceDto } from '@double-o/shared';
  * Planted anomalies: INV-004 duplicates INV-002 (same number entered twice)
  * and INV-008 near-duplicates INV-006 (same supplier/amount, number typo).
  */
-const SEED_INVOICES: InvoiceDto[] = [
+export const SEED_INVOICES: InvoiceDto[] = [
   {
     id: 'INV-001',
     number: 'FT-2026/0087',

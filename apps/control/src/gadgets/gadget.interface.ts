@@ -1,4 +1,8 @@
-import type { ExtractedInvoiceDto, FlaggedInvoiceDto } from '@double-o/shared';
+import type {
+  ExtractedInvoiceDto,
+  FlaggedInvoiceDto,
+  InvoiceDto,
+} from '@double-o/shared';
 
 export type JsonSchema = Record<string, unknown>;
 
@@ -12,6 +16,8 @@ export interface MissionDocument {
 export interface MissionContext {
   missionId: string;
   flagged: FlaggedInvoiceDto[];
+  /** The batch a duplicate-hunt runs over: the seed in demo, the owner's uploads in live. */
+  invoices: InvoiceDto[];
   document?: MissionDocument;
   /** Set by record_invoice on extraction missions. */
   extracted?: ExtractedInvoiceDto;

@@ -4,9 +4,10 @@ import {
   MissionRunSpec,
 } from './agent-loop.service';
 import { LlmService } from './llm.service';
+import { DemoLlmService } from './demo-llm.service';
 import { AssistantTurn } from './agent.types';
 import { GadgetRegistry } from '../gadgets/gadget.registry';
-import { InvoicesRepository } from '../gadgets/invoices.repository';
+import { SEED_INVOICES } from '../gadgets/invoices.repository';
 import { ListInvoicesGadget } from '../gadgets/list-invoices.gadget';
 import { CompareInvoicesGadget } from '../gadgets/compare-invoices.gadget';
 import { FlagInvoiceGadget } from '../gadgets/flag-invoice.gadget';
@@ -21,33 +22,52 @@ const spec: MissionRunSpec = {
   task: 'Begin the duplicate hunt.',
   instructions: 'Your mission: hunt duplicate invoices.',
   gadgets: ['list_invoices', 'compare_invoices', 'flag_invoice'],
+  invoices: SEED_INVOICES,
 };
 
-function buildLoop(turns: AssistantTurn[] | Error) {
-  const repo = new InvoicesRepository();
-  const registry = new GadgetRegistry(
-    new ListInvoicesGadget(repo),
-    new CompareInvoicesGadget(repo),
-    new FlagInvoiceGadget(repo),
-    new ReadDocumentGadget(),
-    new RecordInvoiceGadget(),
-  );
+function makeChat(turns: AssistantTurn[] | Error) {
   const chat = jest.fn<Promise<AssistantTurn>, unknown[]>();
   if (turns instanceof Error) {
     chat.mockRejectedValue(turns);
   } else {
     turns.forEach((turn) => chat.mockResolvedValueOnce(Promise.resolve(turn)));
   }
+  return chat;
+}
+
+function buildLoop(
+  turns: AssistantTurn[] | Error,
+  opts: { demoTurns?: AssistantTurn[]; liveAvailable?: boolean } = {},
+) {
+  const registry = new GadgetRegistry(
+    new ListInvoicesGadget(),
+    new CompareInvoicesGadget(),
+    new FlagInvoiceGadget(),
+    new ReadDocumentGadget(),
+    new RecordInvoiceGadget(),
+  );
+  const chat = makeChat(turns);
+  const demoChat = makeChat(
+    opts.demoTurns ?? [{ text: 'Demo.', toolCalls: [] }],
+  );
   const llm = { chat } as unknown as LlmService;
-  return { loop: new AgentLoopService(llm, registry), chat };
+  const demo = { chat: demoChat } as unknown as DemoLlmService;
+  const loop = new AgentLoopService(
+    llm,
+    demo,
+    registry,
+    opts.liveAvailable ?? true,
+  );
+  return { loop, chat, demoChat };
 }
 
 async function runCollecting(
   loop: AgentLoopService,
   runSpec: MissionRunSpec = spec,
+  opts?: { demo?: boolean },
 ): Promise<MissionEventDraft[]> {
   const events: MissionEventDraft[] = [];
-  await loop.run(runSpec, (draft) => events.push(draft));
+  await loop.run(runSpec, (draft) => events.push(draft), opts);
   return events;
 }
 
@@ -182,5 +202,27 @@ describe('AgentLoopService', () => {
       type: 'error',
       message: 'Missione fallita: boom',
     });
+  });
+
+  it('routes to the demo brain when the run requests demo mode', async () => {
+    const { loop, chat, demoChat } = buildLoop(
+      [{ text: 'Live.', toolCalls: [] }],
+      { demoTurns: [{ text: 'Demo.', toolCalls: [] }] },
+    );
+    const events = await runCollecting(loop, spec, { demo: true });
+    expect(demoChat).toHaveBeenCalledTimes(1);
+    expect(chat).not.toHaveBeenCalled();
+    expect(events.at(-1)).toMatchObject({ type: 'debrief', text: 'Demo.' });
+  });
+
+  it('forces the demo brain when no live brain is configured', async () => {
+    const { loop, chat, demoChat } = buildLoop(
+      [{ text: 'Live.', toolCalls: [] }],
+      { demoTurns: [{ text: 'Demo.', toolCalls: [] }], liveAvailable: false },
+    );
+    const events = await runCollecting(loop); // no demo flag — still forced to demo
+    expect(demoChat).toHaveBeenCalledTimes(1);
+    expect(chat).not.toHaveBeenCalled();
+    expect(events.at(-1)).toMatchObject({ type: 'debrief', text: 'Demo.' });
   });
 });
